@@ -1,4 +1,7 @@
-#ifndef GITIGNORE_MINI_AES_H
-#define GITIGNORE_MINI_AES_H
+#ifndef _MINI_AES_H_
+#define _MINI_AES_H_
 
-#endif //GITIGNORE_MINI_AES_H
+//inclusion des settings
+#include"settings.h"
+
+#endif

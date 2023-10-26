@@ -49,6 +49,12 @@ cmake_ninja_workdir = C$:/Users/nolan/Documents/GitHub/Mini-AES/cmake-build-debu
 
 build cmake_object_order_depends_target_Mini_AES: phony || CMakeFiles/Mini_AES.dir
 
+build CMakeFiles/Mini_AES.dir/Mini_AES.c.obj: C_COMPILER__Mini_AES_Debug C$:/Users/nolan/Documents/GitHub/Mini-AES/Mini$ AES.c || cmake_object_order_depends_target_Mini_AES
+  DEP_FILE = CMakeFiles\Mini_AES.dir\Mini_AES.c.obj.d
+  FLAGS = -g -fdiagnostics-color=always -std=gnu99
+  OBJECT_DIR = CMakeFiles\Mini_AES.dir
+  OBJECT_FILE_DIR = CMakeFiles\Mini_AES.dir
+
 build CMakeFiles/Mini_AES.dir/main.c.obj: C_COMPILER__Mini_AES_Debug C$:/Users/nolan/Documents/GitHub/Mini-AES/main.c || cmake_object_order_depends_target_Mini_AES
   DEP_FILE = CMakeFiles\Mini_AES.dir\main.c.obj.d
   FLAGS = -g -fdiagnostics-color=always -std=gnu99
@@ -63,7 +69,7 @@ build CMakeFiles/Mini_AES.dir/main.c.obj: C_COMPILER__Mini_AES_Debug C$:/Users/n
 #############################################
 # Link the executable Mini_AES.exe
 
-build Mini_AES.exe: C_EXECUTABLE_LINKER__Mini_AES_Debug CMakeFiles/Mini_AES.dir/main.c.obj
+build Mini_AES.exe: C_EXECUTABLE_LINKER__Mini_AES_Debug CMakeFiles/Mini_AES.dir/Mini_AES.c.obj CMakeFiles/Mini_AES.dir/main.c.obj
   FLAGS = -g
   LINK_LIBRARIES = -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32
   OBJECT_DIR = CMakeFiles\Mini_AES.dir

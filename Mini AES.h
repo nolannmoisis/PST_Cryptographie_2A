@@ -41,3 +41,12 @@ void addRoundKey(Message *message, Message *roundKey);
 /// @param roundKey 
 /// @param round 
 void encrypt(Message *message, Message *roundKey, int round);
+
+/// @brief 
+/// @param path 
+/// @return Pointeur vers le message
+Message *messageCreate(char *path);
+
+/// @brief 
+/// @param message 
+void messageDestroy(Message** message);

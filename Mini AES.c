@@ -78,6 +78,11 @@ void messageDestroy(Message** message)
         printf("Variable message inexistant\n");
         assert(message);
     }
+    else if (!(*message))
+    {
+        printf("Variable message inexistant\n");
+        assert(*message);
+    }
 
     //Vérification de l'existance du tableau et libération
     if((*message)->tab)free((*message)->tab);

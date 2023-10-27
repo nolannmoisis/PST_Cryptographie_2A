@@ -1,7 +1,15 @@
 #include "Mini AES.h"
 
-void subBytes(Message *message){
+const byte subBytestab[16] = {6,'b' - 'W', 5, 4, 2, 'e' - 'W', 7, 'a' - 'W', 9, 'd' - 'W', 'f' - 'W', 'c' - 'W', 3, 1, 0, 8};
 
+void subBytes(Message *message){
+    //vérification de l'existance du message
+    assert(message);
+    assert(message->tab);
+    assert(message->size);
+    
+
+    for(int i = 0; i < message->size; i++)message->tab[i] = subBytestab[(int)message->tab[i]];
 }
 
 void shiftRows(Message *message){

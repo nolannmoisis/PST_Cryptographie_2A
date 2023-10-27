@@ -4,10 +4,10 @@
 //inclusion des settings
 #include"settings.h"
 
-#endif
-
 /// @brief 
 typedef unsigned char byte;
+
+extern const byte subBytestab[16];
 
 /// @brief 
 typedef struct Message_s
@@ -50,3 +50,4 @@ Message *messageCreate(char *path);
 /// @brief 
 /// @param message 
 void messageDestroy(Message** message);
+#endif

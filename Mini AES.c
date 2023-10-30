@@ -13,7 +13,51 @@ void subBytes(Message *message){
 }
 
 void shiftRows(Message *message){
+    //vérification de l'existance du message
+    assert(message);
+    assert(message->tab);
+    assert(message->size);
 
+    int tmp=0;
+    for(int i = 0; i < sqrt(message->size); i++){
+        for(int k = 0; k < i; k++) {
+            for (int j = i; j < message->size; j += (int)sqrt(message->size)) {
+                if (j < sqrt(message->size)) {
+                    tmp = message->tab[j];
+                    message->tab[j] = message->tab[(int) (j + sqrt(message->size))];
+                }
+                if (j + sqrt(message->size) >= message->size) {
+                    message->tab[j] = tmp;
+                } else if (j >= sqrt(message->size)) {
+                    message->tab[j] = message->tab[(int) (j + sqrt(message->size))];
+                }
+            }
+        }
+    }
+}
+
+void shiftRowsReverse(Message *message){
+    //vérification de l'existance du message
+    assert(message);
+    assert(message->tab);
+    assert(message->size);
+
+    int tmp = 0;
+    for(int i = (int)sqrt(message->size); i > 0; i--){
+        for(int k = (int)sqrt(message->size); k > i; k--) {
+            for (int j = (int)message->size - i; j > 0; j -= (int)sqrt(message->size)) {
+                if (j > message->size - sqrt(message->size)) {
+                    tmp = message->tab[j];
+                    message->tab[j] = message->tab[(int) (j - sqrt(message->size))];
+                }
+                if (j - sqrt(message->size) <=0) {
+                    message->tab[j] = tmp;
+                } else if (j <= message->size - sqrt(message->size)) {
+                    message->tab[j] = message->tab[(int) (j - sqrt(message->size))];
+                }
+            }
+        }
+    }
 }
 
 void mixColumns(Message *message){
@@ -36,7 +80,7 @@ Message *messageCreate(char *path){
     //Vérification de l'adresse du fichier
     if(!pfile)
     {
-        printf("Adresse du fichier incorrect");
+        printf("Adresse du fichier incorrect\n");
         assert(pfile);
     }
 
@@ -96,4 +140,19 @@ void messageDestroy(Message** message)
     if((*message)->tab)free((*message)->tab);
     free((*message));
     *message = NULL;
+}
+
+void messagePrint(Message *message){
+    //vérification de l'existance du message
+    assert(message);
+    assert(message->tab);
+    assert(message->size);
+
+    for(int i = 0; i < sqrt(message->size); i++){
+        for (int j = i; j < message->size; j += sqrt(message->size)) {
+            printf("[%d] ",message->tab[j]);
+        }
+        printf("\n");
+    }
+    printf("\n");
 }

@@ -27,6 +27,10 @@ void subBytes(Message *message);
 /// @param message 
 void shiftRows(Message *message);
 
+/// @brief
+/// @param message
+void shiftRowsReverse(Message *message);
+
 /// @brief 
 /// @param message 
 void mixColumns(Message *message);
@@ -50,4 +54,10 @@ Message *messageCreate(char *path);
 /// @brief 
 /// @param message 
 void messageDestroy(Message** message);
+
+/// @brief
+/// @param message
+void messagePrint(Message* message);
+
 #endif
+

@@ -61,10 +61,6 @@ void addRoundKey(Message *message, Message *roundKey);
 /// @param round Le nombre de ronde à faire
 void encrypt(Message *message, Message *roundKey, int round);
 
-/// @brief Permet de convertir les caractères en termes héxadécimaux
-/// @param message Le message à convertir
-void convertCharToHex(Message *message);
-
 /// @brief Permet de créer le message
 /// @param path Le chemin vers l'instance du message à chiffré
 /// @return Pointeur vers le message

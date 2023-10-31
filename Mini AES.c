@@ -104,31 +104,6 @@ void encrypt(Message *message, Message *roundKey, int round){
     
 }
 
-void convertCharToHex(Message *message){
-    checkMessage(message); // Permet de vérifier si le message existe ou s'il n'est pas corrompu
-
-    // Parcours l'entièreté du message
-    for (int i = 0; i < message->size; i++) {
-        // Vérifie si le terme héxadécimal est un chiffre compris entre 0 et 9
-        if (message->tab[i] >= '0' && message->tab[i] <= '9') {
-            // Convertir les caractères
-            message->tab[i] -= '0'; 
-        }
-
-        // Vérifie si le terme héxadéciaml est une lettre compris entre A et F
-        else if (message->tab[i] >= 'A' && message->tab[i] <= 'F') {
-            // Convertir les caractères
-            message->tab[i] -= 'A' - 10;
-        }
-        
-        // Vérifie si le terme héxadéciaml est une lettre compris entre a et f
-        else if (message->tab[i] >= 'a' && message->tab[i] <= 'f') {
-            // Convertir les caractères
-            message->tab[i] -= 'a' - 10;
-        }
-    }
-}
-
 Message *messageCreate(char *path){
 
     //Création du pointeur vers le fichier
@@ -174,8 +149,6 @@ Message *messageCreate(char *path){
             return NULL;
         }
     }
-
-    convertCharToHex(new);
 
     fclose(pfile);
     return new;

@@ -1,5 +1,8 @@
 #include "Mini AES.h"
 
+const byte subBytesReverseTab[16] = {0xE, 0xD, 0x4, 0xC, 0x3, 0x2, 0x0, 0x6, 0xF, 0x8, 0x7, 0x1, 0xB, 0x9, 0x5, 0xA};
+const byte subBytesTab[16] = {0x6, 0xB, 0x5, 0x4, 0x2, 0xE, 0x7, 0xA, 0x9, 0xD, 0xF, 0xC, 0x3, 0x1, 0x0, 0x8};
+
 void checkMessage(Message *message){
     // Vérification si le message existe
     if (!message)
@@ -203,7 +206,13 @@ void messagePrint(Message *message){
 
     for(int i = 0; i < sqrt(message->size); i++){
         for (int j = i; j < message->size; j += sqrt(message->size)) {
-            printf("[%d] ",message->tab[j]);
+            if (message->tab[j] >= 10)
+            {
+                printf("[%c] ",message->tab[j] + 'A' - 10);
+            }
+            else{
+                printf("[%d] ",message->tab[j]);
+            }            
         }
         printf("\n");
     }

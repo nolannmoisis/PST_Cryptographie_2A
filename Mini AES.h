@@ -4,14 +4,13 @@
 //inclusion des settings
 #include"settings.h"
 
-/// @brief La S-Box correspondant à la permutation pour le chiffrement
-const byte subBytesTab[16] = {0x6, 0xB, 0x5, 0x4, 0x2, 0xE, 0x7, 0xA, 0x9, 0xD, 0xF, 0xC, 0x3, 0x1, 0x0, 0x8};
-
-/// @brief La S-Box correspondant à la permutation pour le déchiffrement
-const byte subBytesReverseTab[16] = {0xE, 0xD, 0x4, 0xC, 0x3, 0x2, 0x0, 0x6, 0xF, 0x8, 0x7, 0x1, 0xB, 0x9, 0x5, 0xA};
-
 /// @brief Permet de transformer unsigned char en terme byte
 typedef unsigned char byte;
+
+/// @brief La S-Box correspondant à la permutation pour le chiffrement
+extern const byte subBytesTab[16];
+/// @brief La S-Box correspondant à la permutation pour le déchiffrement
+extern const byte subBytesReverseTab[16];
 
 /// @brief Structure décrivant un message
 typedef struct Message_s

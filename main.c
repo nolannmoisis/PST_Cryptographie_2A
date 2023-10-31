@@ -20,16 +20,22 @@ int main(int argc, char **argv)
     key[2] = 0x7;
     key[3] = 0x1;
 
-    Message initKey = {.tab = key, .size = 4};
-    Message **roundKeys = createRoundKeys(&initKey, 1);
+    int roundCount = 15;
 
-    for(int i = 0; i < 2; i++){
+    Message initKey = {.tab = key, .size = 4};
+    Message **roundKeys = createRoundKeys(&initKey, roundCount);
+
+    for(int i = 0; i < roundCount + 1; i++){
+        subBytes(message);
+        shiftRows(message);
         addRoundKey(message, roundKeys[i]);
         messagePrint(message);
     }
 
-    for(int i = 1; i >= 0; i--){
+    for(int i = roundCount; i >= 0; i--){
         addRoundKey(message, roundKeys[i]);
+        shiftRowsReverse(message);
+        subBytesReverse(message);
         messagePrint(message);
     }
 

@@ -11,6 +11,12 @@ typedef unsigned char byte;
 extern const byte subBytesTab[16];
 /// @brief La S-Box correspondant à la permutation pour le déchiffrement
 extern const byte subBytesReverseTab[16];
+/// @brief La S-Box correspondant au constant pour les calculs des clefs rondes
+/*ki
+    if(i == 0)  ki = 1
+    else if (k(i-1) < 0x8)  ki = k(i-1) * 2
+    else ki = ( 2 * k(i-1) ) ^ 0x13(00010011)*/
+extern const byte constKey[16];
 
 /// @brief Structure décrivant un message
 typedef struct Message_s
@@ -50,6 +56,12 @@ void mixColumns(Message *message);
 /// @param message Le message que nous devons transformer
 void mixColumnsReverse(Message *message);
 
+/// @brief La fonction créer un tableau de clef ronde avec pour maximum 15 différente
+/// @param initKey La clef initiale utilisé pour faire les autres clefs rondes
+/// @param roundCount Le nombre de clef ronde à faire (<= 15)
+/// @return Le tableau des clefs rondes
+Message **createRoundKeys(Message *initKey, int roundCount);
+
 /// @brief Ajoute terme à terme à l'état interne la clé de ronde
 /// @param message Le message à chiffré
 /// @param roundKey La clé de ronde
@@ -69,6 +81,11 @@ Message *messageCreate(char *path);
 /// @brief Permet de détruire le message
 /// @param message Le message à détruire
 void messageDestroy(Message** message);
+
+/// @brief Permet de détruire les clefs rondes
+/// @param roundCount nombre de tour effectuer
+/// @param roundKeys Le tableau de clef round
+void roundKeysDestroy(Message **roundKeys, int roundCount);
 
 /// @brief Permet d'afficher le message
 /// @param message Le messa à afficher

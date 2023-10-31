@@ -2,6 +2,7 @@
 
 const byte subBytesReverseTab[16] = {0xE, 0xD, 0x4, 0xC, 0x3, 0x2, 0x0, 0x6, 0xF, 0x8, 0x7, 0x1, 0xB, 0x9, 0x5, 0xA};
 const byte subBytesTab[16] = {0x6, 0xB, 0x5, 0x4, 0x2, 0xE, 0x7, 0xA, 0x9, 0xD, 0xF, 0xC, 0x3, 0x1, 0x0, 0x8};
+const byte constKey[16] = {0x1, 0x2, 0x4, 0x8, 0x3, 0x6, 0xC, 0xB, 0x5, 0xA, 0x7, 0xE, 0xF, 0xD, 0x9};
 
 void checkMessage(Message *message){
     // Vérification si le message existe
@@ -96,8 +97,74 @@ void mixColumnsReverse(Message *message){
 
 }
 
-void addRoundKey(Message *message, Message *roundKey){
+Message **createRoundKeys(Message *initKey, int roundCount){
+    checkMessage(initKey);// Permet de vérifier si le message existe ou s'il n'est pas corrompu
+    if(!(0 <= roundCount && roundCount <= 15)) //Vérification de la validité du nombre de clef à créer
+    {
+        printf("ERROR : NON-POSSIBLE-VALUE-ROUND\n");
+        assert(false);
+    }
 
+    Message **roundKeys = (Message**)calloc(roundCount + 1, sizeof(Message*));
+    if(!roundKeys){
+        printf("ERROR : NON-EXISTENT MESSAGE\n");
+        assert(false);
+    }
+
+    //Initialisation des variables et de la première clef ronde identique à la clef initial
+    int x0 = 0, x1 = 0;
+    roundKeys[0] = initKey;
+
+    for(int i = 1; i < roundCount + 1; i++)
+    {
+        roundKeys[i] = (Message*)calloc(1,sizeof(Message));
+        roundKeys[i]->tab = (byte*)calloc(4,sizeof(byte));
+        roundKeys[i]->size = 4;
+        checkMessage(roundKeys[i]);
+
+        //Initialisation des valeurs
+        x0 = roundKeys[i - 1]->tab[4];
+        x1 = roundKeys[i - 1]->tab[3];
+
+        x0 = subBytesTab[x0];
+        x1 = subBytesTab[x1];
+
+        x0 = x0 ^ constKey[i - 1];
+
+        roundKeys[i]->tab[0] = roundKeys[i - 1]->tab[0] ^ x0;
+        roundKeys[i]->tab[1] = roundKeys[i - 1]->tab[1] ^ x1;
+        roundKeys[i]->tab[2] = roundKeys[i - 1]->tab[2] ^ roundKeys[i - 1]->tab[0];
+        roundKeys[i]->tab[3] = roundKeys[i - 1]->tab[3] ^ roundKeys[i - 1]->tab[1];
+
+    }
+
+    return roundKeys;
+}
+
+void roundKeysDestroy(Message **roundKeys, int roundCount){
+    if(!(0 <= roundCount && roundCount <= 15)){ //Vérification de la validité du nombre de clef à créer
+        printf("ERROR : NON-POSSIBLE-VALUE-ROUND\n");
+        assert(false);
+    }
+    if(!roundKeys){ //Vérification de la validité du tableau
+        printf("ERROR : NON-EXISTENT MESSAGE\n");
+        assert(false);
+    }
+
+    for(int i = 1; i < roundCount + 1; i++)
+    {
+        checkMessage(roundKeys[i]);
+        free(roundKeys[i]->tab);
+        free(roundKeys[i]);
+    }
+
+    free(roundKeys);
+}
+
+void addRoundKey(Message *message, Message *roundKey){
+    checkMessage(message);
+    checkMessage(roundKey);
+    for(int i = 0; i < message->size; i++)message->tab[i] ^= roundKey->tab[i];
 }
 
 void encrypt(Message *message, Message *roundKey, int round){

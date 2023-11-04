@@ -3,6 +3,23 @@
 const byte subBytesReverseTab[16] = {0xE, 0xD, 0x4, 0xC, 0x3, 0x2, 0x0, 0x6, 0xF, 0x8, 0x7, 0x1, 0xB, 0x9, 0x5, 0xA};
 const byte subBytesTab[16] = {0x6, 0xB, 0x5, 0x4, 0x2, 0xE, 0x7, 0xA, 0x9, 0xD, 0xF, 0xC, 0x3, 0x1, 0x0, 0x8};
 const byte constKey[16] = {0x1, 0x2, 0x4, 0x8, 0x3, 0x6, 0xC, 0xB, 0x5, 0xA, 0x7, 0xE, 0xF, 0xD, 0x9};
+const byte matrixMultiplication[16][3] = {{0x0, 0x0, 0x0},
+                                          {0x1, 0x2, 0x3},
+                                          {0x2, 0x4, 0x6},
+                                          {0x3, 0x6, 0x5},
+                                          {0x4, 0x8, 0xC},
+                                          {0x5, 0xA, 0xF},
+                                          {0x6, 0xC, 0xA},
+                                          {0x7, 0xE, 0x9},
+                                          {0x8, 0x3, 0xB},
+                                          {0x9, 0x1, 0x8},
+                                          {0xA, 0x7, 0xD},
+                                          {0xB, 0x5, 0xE},
+                                          {0xC, 0xB, 0x7},
+                                          {0xD, 0x9, 0x4},
+                                          {0xE, 0xF, 0x1},
+                                          {0xF, 0xD, 0x2}};
+const byte matrixMixColumns[4] = {0x3, 0x2, 0x2, 0x3};
 
 void checkMessage(Message *message){
     // Vérification si le message existe
@@ -90,7 +107,13 @@ void shiftRowsReverse(Message *message){
 }
 
 void mixColumns(Message *message){
+    checkMessage(message); // Permet de vérifier si le message existe ou s'il n'est pas corrompu
 
+    int tmp0 = message->tab[0], tmp2 = message->tab[2];
+    message->tab[0] = matrixMultiplication[(int)(message->tab[0])][(int)(matrixMixColumns[0])-1] ^ matrixMultiplication[(int)(message->tab[1])][(int)(matrixMixColumns[1])-1];
+    message->tab[1] = matrixMultiplication[(int)(tmp0)][(int)(matrixMixColumns[2])-1] ^ matrixMultiplication[(int)(message->tab[1])][(int)(matrixMixColumns[3])-1];
+    message->tab[2] = matrixMultiplication[(int)(message->tab[2])][(int)(matrixMixColumns[0])-1] ^ matrixMultiplication[(int)(message->tab[3])][(int)(matrixMixColumns[1])-1];
+    message->tab[3] = matrixMultiplication[(int)(tmp2)][(int)(matrixMixColumns[2])-1] ^ matrixMultiplication[(int)(message->tab[3])][(int)(matrixMixColumns[3])-1];
 }
 
 void mixColumnsReverse(Message *message){

@@ -18,6 +18,11 @@ extern const byte subBytesReverseTab[16];
     else ki = ( 2 * k(i-1) ) ^ 0x13(00010011)*/
 extern const byte constKey[16];
 
+/// @brief Matrice des multiplications dans les corps fini case[3][2] est la multiplication de 0x3*0x3
+extern const byte matrixMultiplication[16][3];
+/// @brief Tableau du MixColums
+extern const byte matrixMixColumns[4];
+
 /// @brief Structure décrivant un message
 typedef struct Message_s
 {

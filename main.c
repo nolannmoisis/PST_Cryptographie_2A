@@ -14,7 +14,7 @@ int main(int argc, char **argv)
     subBytesReverse(message);
     messagePrint(message);*/
 
-    byte *key = (byte*)calloc(4,sizeof(byte));
+    /*byte *key = (byte*)calloc(4,sizeof(byte));
     key[0] = 0x4;
     key[1] = 0xE;
     key[2] = 0x7;
@@ -43,5 +43,8 @@ int main(int argc, char **argv)
     free(key);
     messageDestroy(&message);
 
-    return 0;
+    return 0;*/
+
+    mixColumns(message);
+    messagePrint(message);
 }

@@ -117,7 +117,13 @@ void mixColumns(Message *message){
 }
 
 void mixColumnsReverse(Message *message){
+    checkMessage(message); // Permet de vérifier si le message existe ou s'il n'est pas corrompu
 
+    int tmp0 = message->tab[0], tmp2 = message->tab[2];
+    message->tab[0] = matrixMultiplication[(int)(message->tab[0])][(int)(matrixMixColumns[0])-1] ^ matrixMultiplication[(int)(message->tab[1])][(int)(matrixMixColumns[1])-1];
+    message->tab[1] = matrixMultiplication[(int)(tmp0)][(int)(matrixMixColumns[2])-1] ^ matrixMultiplication[(int)(message->tab[1])][(int)(matrixMixColumns[3])-1];
+    message->tab[2] = matrixMultiplication[(int)(message->tab[2])][(int)(matrixMixColumns[0])-1] ^ matrixMultiplication[(int)(message->tab[3])][(int)(matrixMixColumns[1])-1];
+    message->tab[3] = matrixMultiplication[(int)(tmp2)][(int)(matrixMixColumns[2])-1] ^ matrixMultiplication[(int)(message->tab[3])][(int)(matrixMixColumns[3])-1];
 }
 
 Message **createRoundKeys(Message *initKey, int roundCount){

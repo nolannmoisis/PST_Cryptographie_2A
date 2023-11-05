@@ -47,4 +47,6 @@ int main(int argc, char **argv)
 
     mixColumns(message);
     messagePrint(message);
+    mixColumnsReverse(message);
+    messagePrint(message);
 }

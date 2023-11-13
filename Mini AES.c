@@ -196,8 +196,31 @@ void addRoundKey(Message *message, Message *roundKey){
     for(int i = 0; i < message->size; i++)message->tab[i] ^= roundKey->tab[i];
 }
 
-void encrypt(Message *message, Message *roundKey, int round){
-    
+void encrypt(Message *message, Message **roundKey, int round){
+    addRoundKey(message, roundKey[0]);
+    for(int i = 1; i < round; i++){
+        subBytes(message);
+        shiftRows(message);
+        mixColumns(message);
+        addRoundKey(message, roundKey[i]);
+    }
+    subBytes(message);
+    shiftRows(message);
+    addRoundKey(message, roundKey[round]);
+
+}
+
+void decrypt(Message *message, Message **roundKeys, int round){
+    addRoundKey(message, roundKeys[round]);
+    shiftRowsReverse(message);
+    subBytesReverse(message);
+    for(int i = round - 1; i > 0; i--){
+        addRoundKey(message, roundKeys[i]);
+        mixColumns(message);
+        shiftRowsReverse(message);
+        subBytesReverse(message);
+    }
+    addRoundKey(message, roundKeys[0]);
 }
 
 Message *messageCreate(char *path){

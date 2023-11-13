@@ -76,7 +76,13 @@ void addRoundKey(Message *message, Message *roundKey);
 /// @param message Le message à chiffré
 /// @param roundKey La clé de ronde
 /// @param round Le nombre de ronde à faire
-void encrypt(Message *message, Message *roundKey, int round);
+void encrypt(Message *message, Message **roundKey, int round);
+
+/// @brief 
+/// @param message 
+/// @param roundKey 
+/// @param round 
+void decrypt(Message *message, Message **roundKey, int round);
 
 /// @brief Permet de créer le message
 /// @param path Le chemin vers l'instance du message à chiffré

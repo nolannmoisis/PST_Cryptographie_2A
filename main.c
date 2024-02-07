@@ -2,6 +2,8 @@
 
 int main(int argc, char **argv)
 {
+    char *filePath = "differentialProbability.txt";
+
     /*Message *message = messageCreate("./instance1.txt");
 
     //Création clef initial
@@ -30,6 +32,12 @@ int main(int argc, char **argv)
     roundKeysDestroy(roundKeys, 1);
     free(key);
     messageDestroy(&message);*/
+
+    byte **DP = SBox_DifferentialProbability();
+
+    DP_FilePrint(DP, filePath);
+
+    DP_Delete(DP);
 
     return 0;
 }

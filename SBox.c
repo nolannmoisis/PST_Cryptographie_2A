@@ -3,7 +3,6 @@
 const int S_BOX_SIZE = 16;
 
 byte **SBox_DifferentialProbability(void){
-
     byte **DP = (byte**)calloc(S_BOX_SIZE, sizeof(byte*));
 
     for(int a = 0; a < S_BOX_SIZE; a++){
@@ -50,5 +49,23 @@ void DP_Delete(byte **DP){
 }
 
 byte **SBox_LinearProbability(void){
-    return NULL;
+    byte **LP = (byte**)calloc(S_BOX_SIZE, sizeof(byte*));
+
+    for(int a = 0; a < S_BOX_SIZE; a++){
+        byte *buffer = (byte*)calloc(S_BOX_SIZE, sizeof(byte));
+        LP[a] = (byte*)calloc(S_BOX_SIZE, sizeof(byte));
+
+        for (int b = 0; b < S_BOX_SIZE; b++){
+            for(int x = 0; x < S_BOX_SIZE; x++){
+                if ((a*x)%16 == (subBytesTab[x]*b)%16){
+                    buffer[b]++;
+                }
+            }
+            LP[a][b] = ((2*(buffer[b])-16) * (2*(buffer[b])-16))/16;
+        }
+
+        free(buffer);
+    }
+
+    return LP;
 }

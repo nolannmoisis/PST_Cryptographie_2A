@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     free(key);
     messageDestroy(&message);*/
 
-    byte **DP = SBox_DifferentialProbability();
+    byte **DP = SBox_LinearProbability();
 
     DP_FilePrint(DP, filePath);
 

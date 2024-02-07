@@ -1,8 +1,9 @@
-#include"Mini AES.h"
+#include "Mini AES.h"
+#include "ToyCipher.h"
 
 int main(int argc, char **argv)
 {
-    Message *message = messageCreate("./instance1.txt");
+    /*Message *message = messageCreate("./instance1.txt");
 
     //Création clef initial
     byte *key = (byte*)calloc(4,sizeof(byte));
@@ -29,7 +30,7 @@ int main(int argc, char **argv)
 
     roundKeysDestroy(roundKeys, 1);
     free(key);
-    messageDestroy(&message);
+    messageDestroy(&message);*/
 
     return 0;
 }

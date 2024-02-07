@@ -1,5 +1,4 @@
-#include "Mini AES.h"
-#include "ToyCipher.h"
+#include "SBox.h"
 
 int main(int argc, char **argv)
 {

@@ -48,23 +48,38 @@ void DP_Delete(byte **DP){
     free(DP);
 }
 
+int scalar(int a, int b){
+    int count = 0;
+    int sum = a & b;
+    for(int i = 0; i < 4; i++){
+        if(sum & 0b1)count++;
+        sum = sum >> 1;
+    }
+    return count%2;
+}
+
 byte **SBox_LinearProbability(void){
     byte **LP = (byte**)calloc(S_BOX_SIZE, sizeof(byte*));
+    int buffer = 0;
+    int correlation = 0;
 
     for(int a = 0; a < S_BOX_SIZE; a++){
-        byte *buffer = (byte*)calloc(S_BOX_SIZE, sizeof(byte));
         LP[a] = (byte*)calloc(S_BOX_SIZE, sizeof(byte));
 
         for (int b = 0; b < S_BOX_SIZE; b++){
+            correlation = 0;
             for(int x = 0; x < S_BOX_SIZE; x++){
-                if ((a*x)%16 == (subBytesTab[x]*b)%16){
-                    buffer[b]++;
+                //printf("scalaire (a = %d, x = %d) : %d et l'autre b = %d : %d\n", a, x, scalar(a, x), b, scalar((int)subBytesTab[x], b));
+                if (scalar(a, x) == (scalar((int)subBytesTab[x], b))){
+                    correlation++;
                 }
             }
-            LP[a][b] = ((2*(buffer[b])-16) * (2*(buffer[b])-16))/16;
+            //printf("\n");
+            buffer = ((2*(correlation)-16));
+            buffer *= buffer;
+            buffer /= 16;
+            LP[a][b] = (byte)buffer;
         }
-
-        free(buffer);
     }
 
     return LP;

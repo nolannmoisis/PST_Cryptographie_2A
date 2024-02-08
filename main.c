@@ -2,7 +2,8 @@
 
 int main(int argc, char **argv)
 {
-    char *filePath = "differentialProbability.txt";
+    char *filePathDif = "differentialProbability.txt";
+    char *filePathLin = "linearProbability.txt";
 
     /*Message *message = messageCreate("./instance1.txt");
 
@@ -33,11 +34,17 @@ int main(int argc, char **argv)
     free(key);
     messageDestroy(&message);*/
 
-    byte **DP = SBox_LinearProbability();
+    byte **DP = SBox_DifferentialProbability();
 
-    DP_FilePrint(DP, filePath);
+    DP_FilePrint(DP, filePathDif);
 
     DP_Delete(DP);
+
+    byte **LP = SBox_LinearProbability();
+
+    DP_FilePrint(LP, filePathLin);
+
+    DP_Delete(LP);
 
     return 0;
 }

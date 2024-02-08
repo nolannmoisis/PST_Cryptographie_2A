@@ -11,11 +11,20 @@ extern const int S_BOX_SIZE;
 /// @return La matrice des DP de la S-box
 byte **SBox_DifferentialProbability(void);
 
+/// @brief 
+/// @param DP 
+/// @param filePath 
 void DP_FilePrint(byte **DP, char *filePath);
 
+/// @brief 
+/// @param DP 
 void DP_Delete(byte **DP);
 
+/// @brief 
+/// @param  
+/// @return 
 byte **SBox_LinearProbability(void);
 
+int scalar(int a, int b);
 
 #endif

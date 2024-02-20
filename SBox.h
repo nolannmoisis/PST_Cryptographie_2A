@@ -21,10 +21,14 @@ void DP_FilePrint(byte **DP, char *filePath);
 void DP_Delete(byte **DP);
 
 /// @brief 
+/// @param a 
+/// @param b 
+/// @return 
+int scalar(int a, int b);
+
+/// @brief 
 /// @param  
 /// @return 
 byte **SBox_LinearProbability(void);
-
-int scalar(int a, int b);
 
 #endif

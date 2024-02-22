@@ -1,6 +1,8 @@
 #include "ToyCipher.h"
 
-byte *permutation (byte *tab)
+const byte subBytesTab[16] = {0x7, 0x3, 0xD, 0x9, 0xC, 0x2, 0x4, 0x8, 0xA, 0xB, 0x1, 0x0, 0xE, 0xF, 0x5, 0x6};
+
+int ToyCipherKey_permutation (byte *tab)
 {
     byte tmp[4];
     byte value;
@@ -20,5 +22,14 @@ byte *permutation (byte *tab)
         value = value & 0x1F;
         tab[i] = value >> 1;
     }
-    return tab;
+    return 0;
+}
+
+void ToyCipher_subBytes(byte *tab)
+{
+    // Parcours l'entièreté du message
+    for(int i = 0; i < 4; i++){
+        // Substitue l'élément i du message par celui du tableau subBytesTab
+        tab[i] = subBytesTab[(int)tab[i]];
+    }
 }

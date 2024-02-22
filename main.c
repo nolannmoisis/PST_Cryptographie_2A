@@ -52,7 +52,7 @@ int main(int argc, char **argv)
         tab[i] = 0x7;
     }
 
-    tab = permutation(tab);
+    ToyCipherKey_permutation(tab);
 
     for (int i = 0; i < 4; i++)
     {

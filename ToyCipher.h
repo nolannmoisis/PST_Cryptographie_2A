@@ -4,7 +4,10 @@
 //inclusion des settings
 #include"settings.h"
 
-byte *permutation (byte *tab);
+/// @brief Permet de transformer unsigned char en terme byte
+typedef unsigned char byte;
+
+extern const byte subBytesTab[16];
 
 byte **ToyCipherKey_create(byte a, byte b, byte c, byte d);
 void ToyCipher_delete(byte **key);

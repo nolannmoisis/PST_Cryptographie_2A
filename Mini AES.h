@@ -4,9 +4,6 @@
 //inclusion des settings
 #include"settings.h"
 
-/// @brief Permet de transformer unsigned char en terme byte
-typedef unsigned char byte;
-
 /// @brief La S-Box correspondant à la permutation pour le chiffrement
 extern const byte subBytesTab[16];
 /// @brief La S-Box correspondant à la permutation pour le déchiffrement

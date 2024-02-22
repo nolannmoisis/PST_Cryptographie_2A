@@ -1,7 +1,14 @@
 {
     "files.associations": {
+        "*.json": "jsonc",
         "stdbool.h": "c",
         "stdlib.h": "c",
-        "mini aes.h": "c"
+        "mini aes.h": "c",
+        "settings.h": "c",
+        "stdio.h": "c",
+        "time.h": "c",
+        "assert.h": "c",
+        "math.h": "c",
+        "stddef.h": "c"
     }
 }

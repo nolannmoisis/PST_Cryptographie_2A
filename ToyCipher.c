@@ -14,9 +14,10 @@ byte *permutation (byte *tab)
         value = 0;
         for (int j = 0; j < 4; j++)
         {
-            value += tmp[j] & (0b1 << (3-i));
+            value ^= (tmp[j] >> (3-i)) & 0b1;
             value = value << 1;
         }
+        value = value & 0x1F;
         tab[i] = value >> 1;
     }
     return tab;

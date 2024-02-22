@@ -1,4 +1,4 @@
-#include "SBox.h"
+#include "ToyCipher.h"
 
 int main(int argc, char **argv)
 {
@@ -46,7 +46,25 @@ int main(int argc, char **argv)
 
     DP_Delete(LP);*/
 
-    
+    byte *tab = (byte*)calloc(4, sizeof(byte));
+    for (int i = 0; i < 4; i++)
+    {
+        tab[i] = 0x7;
+    }
+
+    tab = permutation(tab);
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (tab[i] >= 10)
+            {
+                printf("[%c] ", tab[i] + 'A' - 10);
+            }
+            else{
+                printf("[%d] ", tab[i]);
+            }   
+    }
+    printf("\n");
 
     return 0;
 }

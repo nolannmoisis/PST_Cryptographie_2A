@@ -7,6 +7,6 @@
 /// @brief Permet de transformer unsigned char en terme byte
 typedef unsigned char byte;
 
-
+byte *permutation (byte *tab);
 
 #endif

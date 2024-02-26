@@ -25,7 +25,7 @@ int ToyCipher_permutation (byte *tab)
     return 0;
 }
 
-byte **ToyCipherKey_create(short nb){
+byte **ToyCipherKey_create(unsigned short nb){
 
     byte **key = (byte**)calloc(6, sizeof(byte*));
 
@@ -97,5 +97,36 @@ int ToyCipherKey_RoundKey(byte **key){
     }
 
     return 0;
+}
+
+byte *ToyCipher_encrypt(unsigned short message, unsigned short key){
+    byte *encrypt = (byte*)calloc(4, sizeof(byte));
+
+    encrypt[0] = (message >> 12) & 0xF;
+    encrypt[1] = (message >> 8) & 0xF;
+    encrypt[2] = (message >> 4) & 0xF;
+    encrypt[3] = (message >> 0) & 0xF;
+
+    byte **keys = ToyCipherKey_create(key);
+
+    if(ToyCipherKey_RoundKey(keys))
+        assert(0);
+
+    for(int i = 0; i < 5; i++){
+        for(int j = 0; j < 4; j++){
+            encrypt[j] ^= keys[i][j];
+        }
+        ToyCipher_subBytes(encrypt);
+        if(i != 4)
+            ToyCipher_permutation(encrypt);
+    }
+
+    for(int j = 0; j < 4; j++){
+        encrypt[j] ^= keys[5][j];
+    }
+
+    ToyCipherKey_delete(keys);
+
+    return encrypt;
 }
 

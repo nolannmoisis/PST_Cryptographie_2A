@@ -6,11 +6,13 @@
 
 extern const byte ToysubBytesTab[16];
 
-byte **ToyCipherKey_create(short nb);
+byte **ToyCipherKey_create(unsigned short nb);
 int ToyCipherKey_permutation(byte *tab);
 void ToyCipherKey_delete(byte **key);
 int ToyCipher_permutation(byte *tab);
 void ToyCipher_subBytes(byte *tab);
 int ToyCipherKey_RoundKey(byte **key);
+
+byte *ToyCipher_encrypt(unsigned short message, unsigned short key);
 
 #endif

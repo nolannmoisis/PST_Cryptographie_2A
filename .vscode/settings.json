@@ -9,6 +9,7 @@
         "time.h": "c",
         "assert.h": "c",
         "math.h": "c",
-        "stddef.h": "c"
+        "stddef.h": "c",
+        "toycipher.h": "c"
     }
 }

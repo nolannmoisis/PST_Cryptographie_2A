@@ -46,25 +46,19 @@ int main(int argc, char **argv)
 
     DP_Delete(LP);*/
 
+    byte *message = ToyCipher_encrypt(0x0000, 0x0000);
 
-    byte** key = ToyCipherKey_create(0x0000);
-
-    ToyCipherKey_RoundKey(key);
-
-    for(int i = 0; i < 6; i++){
-        for(int j = 0; j < 4; j++){
-            if (key[i][j] >= 10){
-                printf("[%c] ", key[i][j] + 'A' - 10);
-            }
-            else{
-                printf("[%d] ", key[i][j]);
-            }
+    for(int i = 0; i < 4; i++){
+        if (message[i] < 10){
+            printf("[%d] ", message[i]);
         }
-        printf("\n");
+        else{
+            printf("[%c] ", message[i] + 'A' - 10);
+        }
     }
     printf("\n");
-    
-    ToyCipherKey_delete(key);
+
+    free(message);
 
     return 0;
 }

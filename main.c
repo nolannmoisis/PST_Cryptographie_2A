@@ -46,25 +46,25 @@ int main(int argc, char **argv)
 
     DP_Delete(LP);*/
 
-    byte *tab = (byte*)calloc(4, sizeof(byte));
-    for (int i = 0; i < 4; i++)
-    {
-        tab[i] = 0x9;
-    }
 
-    ToyCipherKey_permutation(tab);
+    byte** key = ToyCipherKey_create(0x0000);
 
-    for (int i = 0; i < 4; i++)
-    {
-        if (tab[i] >= 10)
-            {
-                printf("[%c] ", tab[i] + 'A' - 10);
+    ToyCipherKey_RoundKey(key);
+
+    for(int i = 0; i < 6; i++){
+        for(int j = 0; j < 4; j++){
+            if (key[i][j] >= 10){
+                printf("[%c] ", key[i][j] + 'A' - 10);
             }
             else{
-                printf("[%d] ", tab[i]);
-            }   
+                printf("[%d] ", key[i][j]);
+            }
+        }
+        printf("\n");
     }
     printf("\n");
+    
+    ToyCipherKey_delete(key);
 
     return 0;
 }

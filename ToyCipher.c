@@ -1,8 +1,8 @@
 #include "ToyCipher.h"
 
-const byte subBytesTab[16] = {0x7, 0x3, 0xD, 0x9, 0xC, 0x2, 0x4, 0x8, 0xA, 0xB, 0x1, 0x0, 0xE, 0xF, 0x5, 0x6};
+const byte ToysubBytesTab[16] = {0x7, 0x3, 0xD, 0x9, 0xC, 0x2, 0x4, 0x8, 0xA, 0xB, 0x1, 0x0, 0xE, 0xF, 0x5, 0x6};
 
-int ToyCipherKey_permutation (byte *tab)
+int ToyCipher_permutation (byte *tab)
 {
     byte tmp[4];
     byte value;
@@ -22,7 +22,7 @@ int ToyCipherKey_permutation (byte *tab)
         value = value & 0x1F;
         tab[i] = value >> 1;
     }
-    return tab;
+    return 0;
 }
 
 byte **ToyCipherKey_create(byte a, byte b, byte c, byte d){
@@ -50,8 +50,20 @@ byte **ToyCipherKey_create(byte a, byte b, byte c, byte d){
     return key;
 }
 
-int ToyCipherKey_permutation(byte **tab){
+int ToyCipherKey_permutation(byte *key){
+    unsigned short tmp[2] = {0, 0};
 
+    tmp[0] = (key[0] << 12) ^ (key[1] << 8) ^ (key[2] << 4) ^ (key[3]);
+
+    tmp[1] ^= tmp[0] << 5;
+    tmp[1] ^= tmp[0] >> 11;
+
+    key[0] = (tmp[1] >> 12) & 0xF;
+    key[1] = (tmp[1] >> 8) & 0xF;
+    key[2] = (tmp[1] >> 4) & 0xF;
+    key[3] = (tmp[1] >> 0) & 0xF;
+
+    return 0;
 }
 
 void ToyCipher_delete(byte **key){
@@ -68,6 +80,6 @@ void ToyCipher_subBytes(byte *tab)
     // Parcours l'entièreté du message
     for(int i = 0; i < 4; i++){
         // Substitue l'élément i du message par celui du tableau subBytesTab
-        tab[i] = subBytesTab[(int)tab[i]];
+        tab[i] = ToysubBytesTab[(int)tab[i]];
     }
 }

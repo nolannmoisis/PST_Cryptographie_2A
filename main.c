@@ -49,7 +49,7 @@ int main(int argc, char **argv)
     byte *tab = (byte*)calloc(4, sizeof(byte));
     for (int i = 0; i < 4; i++)
     {
-        tab[i] = 0x7;
+        tab[i] = 0x9;
     }
 
     ToyCipherKey_permutation(tab);

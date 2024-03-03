@@ -149,8 +149,50 @@ byte *ToyCipher_encrypt(unsigned short message, unsigned short key){
     return encrypt;
 }
 
-byte **ToyCipher_GoodPair(){
-    return NULL;
+byte **ToyCipher_GoodPair(unsigned short key, unsigned short a, unsigned short b, int *count){
+    byte **pairs = (byte**)calloc(1, sizeof(byte*));
+    byte b0[4] = {(b >> 12) & 0xF, (b >> 8) & 0xF, (b >> 4) & 0xF, b & 0xF};
+
+    byte **keys = ToyCipherKey_create(key);
+    byte *x0 = NULL, *x1 = NULL;
+    int max_capacity = 1;
+    *count = 0;
+
+    if(ToyCipherKey_RoundKey(keys)){
+        printf("ERROR KEYS INIT\n");
+        assert(0);
+    }
+
+    for(int i = 0; i < (1 << 16); i++){
+        x0 = ToyCipher_encryptRound((unsigned short)i, keys, 3);
+        x1 = ToyCipher_encryptRound((unsigned short)(i ^ a), keys, 3);
+
+        bool good = true;
+
+        for(int j = 0; (j < 4) && good; j++){
+            if((x0[j] ^ x1[j]) != b0[j])
+                good = false;
+        }
+
+        if(good){
+            //Augmentation du tableau de bonne pairs si besoin
+            if(*count == max_capacity){
+                pairs = (byte**)realloc(pairs, (++max_capacity) * sizeof(byte*));
+            }
+
+            pairs[*count] = x0;
+            (*count)++;
+        }
+        else{
+            free(x0);
+        }
+        free(x1);
+    }
+
+    ToyCipherKey_delete(keys);
+
+    (*count)--;
+    return pairs;
 }
 
 byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round){

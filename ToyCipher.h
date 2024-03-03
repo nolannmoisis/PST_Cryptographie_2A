@@ -12,7 +12,7 @@ void ToyCipherKey_delete(byte **key);
 int ToyCipher_permutation(byte *tab);
 void ToyCipher_subBytes(byte *tab);
 int ToyCipherKey_RoundKey(byte **key);
-byte **ToyCipher_GoodPair();
+byte **ToyCipher_GoodPair(unsigned short key, unsigned short a, unsigned short b, int *count);
 byte *ToyCipher_encrypt(unsigned short message, unsigned short key);
 
 /// @brief Fonction renvoyant le ciphertext d'un plaintext apres un nombre r de round

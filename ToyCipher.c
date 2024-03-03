@@ -2,6 +2,25 @@
 
 const byte ToysubBytesTab[16] = {0x7, 0x3, 0xD, 0x9, 0xC, 0x2, 0x4, 0x8, 0xA, 0xB, 0x1, 0x0, 0xE, 0xF, 0x5, 0x6};
 
+int byte_affichage(byte *text){
+    if(!text){
+        printf("ERROR TEXT\n");
+        assert(0);
+        return -1;
+    }
+
+    for(int i = 0; i < 4; i++){
+        if (text[i] < 10){
+            printf("[%d] ", text[i]);
+        }
+        else{
+            printf("[%c] ", text[i] + 'A' - 10);
+        }
+    }
+    printf("\n");
+    return 0;
+}
+
 int ToyCipher_permutation (byte *tab)
 {
     byte tmp[4];
@@ -130,3 +149,53 @@ byte *ToyCipher_encrypt(unsigned short message, unsigned short key){
     return encrypt;
 }
 
+byte **ToyCipher_GoodPair(){
+    return NULL;
+}
+
+byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round){
+    //vérification des paramtètres initiaux
+    if(!keys){
+        printf("ERROR KEYS NULL\n");
+        assert(0);
+    }
+
+    int round;
+    r_Round++;
+
+    byte *ciphertext = (byte*)calloc(4, sizeof(byte));
+
+    if(!ciphertext){
+        printf("ERROR Allocation\n");
+        assert(0);
+    }
+
+    //Initialisation du tableau de base
+    ciphertext[0] = (plaintext >> 12) & 0xF;
+    ciphertext[1] = (plaintext >> 8) & 0xF;
+    ciphertext[2] = (plaintext >> 4) & 0xF;
+    ciphertext[3] = (plaintext >> 0) & 0xF;
+
+    for(round = 0; round < 5; round++){
+        if(r_Round == round)
+            return ciphertext;
+
+        //Changement à la clef round + 1
+        for(int j = 0; j < 4; j++){
+            ciphertext[j] ^= keys[round][j];
+        }
+        ToyCipher_subBytes(ciphertext);
+
+        if(round != 4)
+            ToyCipher_permutation(ciphertext);
+    }
+
+    if(round == r_Round)
+        return ciphertext;
+
+    for(int j = 0; j < 4; j++){
+        ciphertext[j] ^= keys[round][j];
+    }
+
+    return ciphertext;
+}

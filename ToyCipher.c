@@ -156,6 +156,7 @@ byte **ToyCipher_GoodPair(unsigned short key, unsigned short a, unsigned short b
     byte **keys = ToyCipherKey_create(key);
     byte *x0 = NULL, *x1 = NULL;
     int max_capacity = 1;
+    unsigned short tmp;
     *count = 0;
 
     if(ToyCipherKey_RoundKey(keys)){
@@ -164,34 +165,39 @@ byte **ToyCipher_GoodPair(unsigned short key, unsigned short a, unsigned short b
     }
 
     for(int i = 0; i < (1 << 16); i++){
-        x0 = ToyCipher_encryptRound((unsigned short)i, keys, 3);
-        x1 = ToyCipher_encryptRound((unsigned short)(i ^ a), keys, 3);
-
+        x0 = ToyCipher_encryptRound((unsigned short)i, keys, 5);
+        x1 = ToyCipher_encryptRound((unsigned short)(i ^ a), keys, 5);
         bool good = true;
 
         for(int j = 0; (j < 4) && good; j++){
-            if((x0[j] ^ x1[j]) != b0[j])
+            tmp = (x0[j] ^ b0[j]) & 0xF;
+            if(tmp != (x1[j] & 0xF)){
                 good = false;
+            }
         }
 
         if(good){
-            //Augmentation du tableau de bonne pairs si besoin
-            if(*count == max_capacity){
+            //Augmentation du tableau de bonnes pairs si besoin
+            if((*count) == max_capacity){
                 pairs = (byte**)realloc(pairs, (++max_capacity) * sizeof(byte*));
             }
 
-            pairs[*count] = x0;
+            byte *new_byte = (byte*)calloc(4, sizeof(byte));
+            
+            new_byte[0] = (i >> 12) & 0xF;
+            new_byte[1] = (i >> 8) & 0xF;
+            new_byte[2] = (i >> 4) & 0xF;
+            new_byte[3] = i & 0xF;
+
+            pairs[*count] = new_byte;
             (*count)++;
         }
-        else{
-            free(x0);
-        }
+        free(x0);
         free(x1);
     }
 
     ToyCipherKey_delete(keys);
 
-    (*count)--;
     return pairs;
 }
 
@@ -208,6 +214,7 @@ byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round)
     byte *ciphertext = (byte*)calloc(4, sizeof(byte));
 
     if(!ciphertext){
+        free(ciphertext);
         printf("ERROR Allocation\n");
         assert(0);
     }

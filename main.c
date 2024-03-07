@@ -83,47 +83,48 @@ int main(int argc, char **argv)
     free(c1);*/
 
     int size = 0;
-    unsigned short KEY = 0x0131;
+    unsigned short KEY = 0x7852;
 
 
     byte **pairs = ToyCipher_GoodPair(KEY, 0x0400, 0x0400, &size);
 
     printf("Le nombre de bonnes pairs est de %d\n", size);
 
-    unsigned short *HPRD = ToyCipher_HPRD(pairs, 0x0400, size);
+    for(int i = 0; i < size; i++){
+        free(pairs[i]);
+    }
+    free(pairs);
 
-    printf("Valeur de la bonne clef = %d\n\n", HPRD[KEY]);
+    byte **keys = ToyCipherKey_create(KEY);
+    ToyCipherKey_RoundKey(keys);
 
-    int max = -1;
-    int key = 0;
+    short *HPRD = ToyCipher_HPRD(KEY, 0x0400, 0x0400, size);
+    int value_key = (keys[5][0] << 12) ^ (keys[5][1] << 8) ^ (keys[5][2] << 4) ^ (keys[5][3]);
+    printf("Valeur de la bonne clef = %d\n\n", HPRD[value_key]);
+    ToyCipherKey_delete(keys);
+
+    int max = 0;
     int nb = 0;
 
-    while(max != 0){
+    while(max > -1){
         max = -1;
         nb = 0;
         for(int i = 0; i < (1 << 16); i++){
             if(HPRD[i] > max){
                 max = HPRD[i];
-                key = i;
             }
         }
-        if(max != 0){
-            printf("Clef potentiel : %d\n", key);
+        if(max > -1){
             printf("Valeur : %d\n", max);
             for(int i = 0; i < (1 << 16); i++){
                 if(HPRD[i] == max){
                     nb++;
-                    HPRD[i] = 0;
+                    HPRD[i] = -1;
                 }
             }
             printf("Le nombre de clef est de %d\n\n", nb);
         }
     }
-
-    for(int i = 0; i < size; i++){
-        free(pairs[i]);
-    }
-    free(pairs);
     free(HPRD);
 
     return 0;

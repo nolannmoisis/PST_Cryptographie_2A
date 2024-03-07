@@ -254,31 +254,34 @@ byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round)
     return ciphertext;
 }
 
-unsigned short *ToyCipher_HPRD(byte **pairs, unsigned short b, int size)
+short *ToyCipher_HPRD(unsigned short key, unsigned short a, unsigned short b, int size)
 {
-    unsigned short *HPRD = (unsigned short*)calloc(1 << 16, sizeof(unsigned short));
+    short *HPRD = (short*)calloc(1 << 16, sizeof(short));
 
-    byte y0[4], y1[4];
+    byte **keys = ToyCipherKey_create(key);
+    ToyCipherKey_RoundKey(keys);
+
+    byte K[4] = {0};
 
     //Parcours de toutes les clefs
     for(int i = 0; i < (1 << 16); i++){
+        K[0] = (i >> 12) & 0xF;
+        K[1] = (i >> 8) & 0xF;
+        K[2] = (i >> 4) & 0xF;
+        K[3] = i & 0xF;
         //Parcours de toutes les bonnes paires
-        for(int pairs_size = 0; pairs_size < 4*(int)((float)(1 << 16) / size); pairs_size++){
+        for(int pairs_size = 0; pairs_size < 20*(int)((float)(1 << 16) / size); pairs_size++){
+
+            unsigned short x0 = pairs_size, x1 = pairs_size ^ a;
+
+            byte *c0 = ToyCipher_encryptRound(x0, keys, 5);
+            byte *c1 = ToyCipher_encryptRound(x1, keys, 5);
             bool good = true;
-            int diff;
 
-            for(byte j = 0; j < 4 && good; j++){
-                diff = 4*(3-j);
-                y0[j] = pairs[pairs_size][j];
-                y1[j] = pairs[pairs_size][j] ^ ((b >> diff) & 0xF);
-
-                y0[j] ^= (i >> diff) & 0xF;
-                y1[j] ^= (i >> diff) & 0xF;
-
-                y0[j] = ToysubBytesTab_inverse[y0[j]];
-                y1[j] = ToysubBytesTab_inverse[y1[j]];
-
-                if((y0[j] ^ y1[j]) != ((b >> diff) & 0xF)){
+            for(int j = 0; j < 4 && good; j++){
+                c0[j] = ToysubBytesTab_inverse[ c0[j] ^ K[j] ]; 
+                c1[j] = ToysubBytesTab_inverse[ c1[j] ^ K[j] ]; 
+                if( ( c0[j] ^ c1[j] ) != ( ( b >> 4* ( 3 - j ) ) & 0xF ) ){
                     good = false;
                 }
             }
@@ -287,8 +290,12 @@ unsigned short *ToyCipher_HPRD(byte **pairs, unsigned short b, int size)
                 HPRD[i]++;
             }
 
+            free(c0);
+            free(c1);
         }   
     }
+
+    ToyCipherKey_delete(keys);
 
     return HPRD;
 }

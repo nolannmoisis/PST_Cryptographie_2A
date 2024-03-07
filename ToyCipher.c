@@ -1,6 +1,7 @@
 #include "ToyCipher.h"
 
 const byte ToysubBytesTab[16] = {0x7, 0x3, 0xD, 0x9, 0xC, 0x2, 0x4, 0x8, 0xA, 0xB, 0x1, 0x0, 0xE, 0xF, 0x5, 0x6};
+const byte ToysubBytesTab_inverse[16] = {0xB, 0xA, 0x5, 0x1, 0x6, 0xE, 0xF, 0x0, 0x7, 0x3, 0x8, 0x9, 0x4, 0x2, 0xC, 0xD};
 
 int byte_affichage(byte *text){
     if(!text){
@@ -182,17 +183,21 @@ byte **ToyCipher_GoodPair(unsigned short key, unsigned short a, unsigned short b
                 pairs = (byte**)realloc(pairs, (++max_capacity) * sizeof(byte*));
             }
 
-            byte *new_byte = (byte*)calloc(4, sizeof(byte));
+            // byte *new_byte = (byte*)calloc(4, sizeof(byte));
             
-            new_byte[0] = (i >> 12) & 0xF;
-            new_byte[1] = (i >> 8) & 0xF;
-            new_byte[2] = (i >> 4) & 0xF;
-            new_byte[3] = i & 0xF;
+            // new_byte[0] = (i >> 12) & 0xF;
+            // new_byte[1] = (i >> 8) & 0xF;
+            // new_byte[2] = (i >> 4) & 0xF;
+            // new_byte[3] = i & 0xF;
 
-            pairs[*count] = new_byte;
+            // pairs[*count] = new_byte;
+            pairs[*count] = x0;
             (*count)++;
         }
-        free(x0);
+        else{
+            free(x0);
+        }
+        // free(x0);
         free(x1);
     }
 
@@ -247,4 +252,43 @@ byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round)
     }
 
     return ciphertext;
+}
+
+unsigned short *ToyCipher_HPRD(byte **pairs, unsigned short b, int size)
+{
+    unsigned short *HPRD = (unsigned short*)calloc(1 << 16, sizeof(unsigned short));
+
+    byte y0[4], y1[4];
+
+    //Parcours de toutes les clefs
+    for(int i = 0; i < (1 << 16); i++){
+        //Parcours de toutes les bonnes paires
+        for(int pairs_size = 0; pairs_size < 4*(int)((float)(1 << 16) / size); pairs_size++){
+            bool good = true;
+            int diff;
+
+            for(byte j = 0; j < 4 && good; j++){
+                diff = 4*(3-j);
+                y0[j] = pairs[pairs_size][j];
+                y1[j] = pairs[pairs_size][j] ^ ((b >> diff) & 0xF);
+
+                y0[j] ^= (i >> diff) & 0xF;
+                y1[j] ^= (i >> diff) & 0xF;
+
+                y0[j] = ToysubBytesTab_inverse[y0[j]];
+                y1[j] = ToysubBytesTab_inverse[y1[j]];
+
+                if((y0[j] ^ y1[j]) != ((b >> diff) & 0xF)){
+                    good = false;
+                }
+            }
+
+            if(good){
+                HPRD[i]++;
+            }
+
+        }   
+    }
+
+    return HPRD;
 }

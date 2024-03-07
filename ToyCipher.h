@@ -5,6 +5,7 @@
 #include"settings.h"
 
 extern const byte ToysubBytesTab[16];
+extern const byte ToysubBytesTab_inverse[16];
 
 byte **ToyCipherKey_create(unsigned short nb);
 int ToyCipherKey_permutation(byte *tab);
@@ -22,5 +23,6 @@ byte *ToyCipher_encrypt(unsigned short message, unsigned short key);
 /// @return le ciphertext
 byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round);
 int byte_affichage(byte *text);
+unsigned short *ToyCipher_HPRD(byte **pairs, unsigned short b, int size);
 
 #endif

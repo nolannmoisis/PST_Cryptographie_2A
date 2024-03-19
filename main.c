@@ -82,50 +82,37 @@ int main(int argc, char **argv)
     free(c0);
     free(c1);*/
 
-    int size = 0;
-    unsigned short KEY = 0x7852;
+    srand(1562354);
 
+    int size = 50 * (1 << 7);
+    short *HPRD = ToyCipher_HPRD(size);
+    // int value_key = (keys[5][0] << 12) ^ (keys[5][1] << 8) ^ (keys[5][2] << 4) ^ (keys[5][3]);
+    // printf("Valeur de la bonne clef = %d\n\n", HPRD[value_key]);
+    // ToyCipherKey_delete(keys);
 
-    byte **pairs = ToyCipher_GoodPair(KEY, 0x0400, 0x0400, &size);
+    // int max = 0;
+    // int nb = 0;
 
-    printf("Le nombre de bonnes pairs est de %d\n", size);
-
-    for(int i = 0; i < size; i++){
-        free(pairs[i]);
-    }
-    free(pairs);
-
-    byte **keys = ToyCipherKey_create(KEY);
-    ToyCipherKey_RoundKey(keys);
-
-    short *HPRD = ToyCipher_HPRD(KEY, 0x0400, 0x0400, size);
-    int value_key = (keys[5][0] << 12) ^ (keys[5][1] << 8) ^ (keys[5][2] << 4) ^ (keys[5][3]);
-    printf("Valeur de la bonne clef = %d\n\n", HPRD[value_key]);
-    ToyCipherKey_delete(keys);
-
-    int max = 0;
-    int nb = 0;
-
-    while(max > -1){
-        max = -1;
-        nb = 0;
-        for(int i = 0; i < (1 << 16); i++){
-            if(HPRD[i] > max){
-                max = HPRD[i];
-            }
-        }
-        if(max > -1){
-            printf("Valeur : %d\n", max);
-            for(int i = 0; i < (1 << 16); i++){
-                if(HPRD[i] == max){
-                    nb++;
-                    HPRD[i] = -1;
-                }
-            }
-            printf("Le nombre de clef est de %d\n\n", nb);
-        }
-    }
-    free(HPRD);
+    // while(max > -1){
+    //     max = -1;
+    //     nb = 0;
+    //     for(int i = 0; i < (1 << 16); i++){
+    //         if(HPRD[i] > max){
+    //             max = HPRD[i];
+    //         }
+    //     }
+    //     if(max > -1){
+    //         printf("Valeur : %d\n", max);
+    //         for(int i = 0; i < (1 << 16); i++){
+    //             if(HPRD[i] == max){
+    //                 nb++;
+    //                 HPRD[i] = -1;
+    //             }
+    //         }
+    //         printf("Le nombre de clef est de %d\n\n", nb);
+    //     }
+    // }
+    // free(HPRD);
 
     return 0;
 }

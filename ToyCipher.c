@@ -254,48 +254,60 @@ byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round)
     return ciphertext;
 }
 
-short *ToyCipher_HPRD(unsigned short key, unsigned short a, unsigned short b, int size)
+short *ToyCipher_HPRD(int size)
 {
-    short *HPRD = (short*)calloc(1 << 16, sizeof(short));
+    short *HPRD = (short*)calloc(1 << 4, sizeof(short));
 
-    byte **keys = ToyCipherKey_create(key);
+    byte **keys = ToyCipherKey_create(0xABCD);
     ToyCipherKey_RoundKey(keys);
 
-    byte K[4] = {0};
+    //byte K[4] = {0};
 
-    //Parcours de toutes les clefs
-    for(int i = 0; i < (1 << 16); i++){
-        K[0] = (i >> 12) & 0xF;
-        K[1] = (i >> 8) & 0xF;
-        K[2] = (i >> 4) & 0xF;
-        K[3] = i & 0xF;
-        //Parcours de toutes les bonnes paires
-        for(int pairs_size = 0; pairs_size < 20*(int)((float)(1 << 16) / size); pairs_size++){
+    printf("Good key = %x\n", keys[5][1]);
+    
+    //Parcours de toutes les bonnes paires
+    for(int pairs_size = 0; pairs_size < size; pairs_size++){
 
-            unsigned short x0 = pairs_size, x1 = pairs_size ^ a;
+        unsigned short x0 = rand() & 0xFFFF;
+        unsigned short x1 = x0 ^ 0x0400;
 
-            byte *c0 = ToyCipher_encryptRound(x0, keys, 5);
-            byte *c1 = ToyCipher_encryptRound(x1, keys, 5);
-            bool good = true;
+        byte *c0 = ToyCipher_encryptRound(x0, keys, 5);
+        byte *c1 = ToyCipher_encryptRound(x1, keys, 5);
+        bool good = true;
 
-            for(int j = 0; j < 4 && good; j++){
-                c0[j] = ToysubBytesTab_inverse[ c0[j] ^ K[j] ]; 
-                c1[j] = ToysubBytesTab_inverse[ c1[j] ^ K[j] ]; 
-                if( ( c0[j] ^ c1[j] ) != ( ( b >> 4* ( 3 - j ) ) & 0xF ) ){
-                    good = false;
+        if ((c0[0] ^ c1[0]) != 0) good = false;
+        if ((c0[2] ^ c1[2]) != 0) good = false;
+        if ((c0[3] ^ c1[3]) != 0) good = false;
+
+        byte d = c0[1] ^ c1[1];
+        if (d != 0x1 && d != 0x4 && d != 0x6 && d != 0x9 && d != 0xB) good = false;
+
+        if (good)
+        {
+            //Parcours de toutes les clefs
+            for(int k1 = 0; k1 < (1 << 4); k1++){
+                byte z01 = c0[1] ^ k1;
+                byte z11 = c1[1] ^ k1;
+                byte y01 = ToysubBytesTab_inverse[z01];
+                byte y11 = ToysubBytesTab_inverse[z11];
+
+                if ((y01 ^ y11) == 0x4)
+                {
+                    HPRD[k1]++;
                 }
             }
+        }
 
-            if(good){
-                HPRD[i]++;
-            }
-
-            free(c0);
-            free(c1);
-        }   
+        free(c0);
+        free(c1);
     }
 
     ToyCipherKey_delete(keys);
+
+    for (int k = 0; k < (1 << 4); k++)
+    {
+        printf("key = %x, score = %d\n", k, HPRD[k]);
+    }
 
     return HPRD;
 }

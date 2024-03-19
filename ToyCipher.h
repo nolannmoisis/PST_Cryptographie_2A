@@ -23,6 +23,6 @@ byte *ToyCipher_encrypt(unsigned short message, unsigned short key);
 /// @return le ciphertext
 byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round);
 int byte_affichage(byte *text);
-short *ToyCipher_HPRD(unsigned short key, unsigned short a, unsigned short b, int size);
+short *ToyCipher_HPRD(int size);
 
 #endif

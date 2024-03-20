@@ -86,9 +86,10 @@ int main(int argc, char **argv)
 
     int q = (1 << 7);
     
-    int C = 5;
+    int C = 4;
+    float statistique[4] = {0.0f};
 
-    Statistic_Table *statistic_table = Statistic_Table_create(5, C);
+    Statistic_Table *statistic_table = Statistic_Table_create(1000, C);
 
     for(int i = 0; i < statistic_table->n_key; i++){
         unsigned short *buffer = ToyCipher_HPRD(q * statistic_table->coef, (unsigned short)( rand() % (1 << SIZE_STATISTIC_TABLE) ), &statistic_table->theGoodOne[i]);
@@ -100,9 +101,36 @@ int main(int argc, char **argv)
         free(buffer);
         statistic_table->total_value[i] = total;
         qsort(statistic_table->hrpd[i], SIZE_STATISTIC_TABLE, sizeof(HPRD), Statistic_Table_Compare);
-        printf("good : %x, best = %x, value = %d\n", statistic_table->theGoodOne[i], statistic_table->hrpd[i][0].index, statistic_table->hrpd[i][0].value);
+        for(int j = 0; j < SIZE_STATISTIC_TABLE; j++){
+            if(statistic_table->hrpd[i][j].index == statistic_table->theGoodOne[i]){
+                switch (j)
+                {
+                case 0:
+                case 1:
+                case 2:
+                case 3:
+                    statistique[0] += 1.0f/statistic_table->n_key;
+                    break;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                    statistique[1] += 1.0f/statistic_table->n_key;
+                    break;
+                case 8:
+                case 9:
+                case 10:
+                case 11:
+                    statistique[2] += 1.0f/statistic_table->n_key;
+                    break;
+                default:
+                    statistique[3] += 1.0f/statistic_table->n_key;
+                    break;
+                }
+            }
+        }
     }
-    
+    printf("Proportion :\n\t100-75%%\t: %.1f\n\t75-50%%\t: %.1f\n\t50-25%%\t: %.1f\n\t25-0%%\t: %.1f\n", 100*statistique[0], 100*statistique[1], 100*statistique[2], 100*statistique[3]);
     Statistic_Table_destroy(statistic_table);
     
     // int value_key = (keys[5][0] << 12) ^ (keys[5][1] << 8) ^ (keys[5][2] << 4) ^ (keys[5][3]);

@@ -3,6 +3,12 @@
 const byte ToysubBytesTab[16] = {0x7, 0x3, 0xD, 0x9, 0xC, 0x2, 0x4, 0x8, 0xA, 0xB, 0x1, 0x0, 0xE, 0xF, 0x5, 0x6};
 const byte ToysubBytesTab_inverse[16] = {0xB, 0xA, 0x5, 0x1, 0x6, 0xE, 0xF, 0x0, 0x7, 0x3, 0x8, 0x9, 0x4, 0x2, 0xC, 0xD};
 
+int Statistic_Table_Compare(const void *a, const void *b){
+    HPRD *x = (HPRD*)a;
+    HPRD *y = (HPRD*)b;
+    return y->value - x->value;
+}
+
 int byte_affichage(byte *text){
     if(!text){
         printf("ERROR TEXT\n");
@@ -254,16 +260,16 @@ byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round)
     return ciphertext;
 }
 
-short *ToyCipher_HPRD(int size)
+unsigned short *ToyCipher_HPRD(int size, unsigned short key, byte *good_bit)
 {
-    short *HPRD = (short*)calloc(1 << 4, sizeof(short));
+    unsigned short *HPRD = (unsigned short*)calloc(1 << 4, sizeof(unsigned short));
 
-    byte **keys = ToyCipherKey_create(0xABCD);
+    byte **keys = ToyCipherKey_create(key);
     ToyCipherKey_RoundKey(keys);
 
     //byte K[4] = {0};
 
-    printf("Good key = %x\n", keys[5][1]);
+    *good_bit = keys[5][1];
     
     //Parcours de toutes les bonnes paires
     for(int pairs_size = 0; pairs_size < size; pairs_size++){
@@ -304,10 +310,42 @@ short *ToyCipher_HPRD(int size)
 
     ToyCipherKey_delete(keys);
 
-    for (int k = 0; k < (1 << 4); k++)
-    {
-        printf("key = %x, score = %d\n", k, HPRD[k]);
-    }
+    // for (int k = 0; k < (1 << 4); k++)
+    // {
+    //     printf("key = %x, score = %d\n", k, HPRD[k]);
+    // }
 
     return HPRD;
+}
+
+Statistic_Table *Statistic_Table_create(int n_key, int coef){
+    Statistic_Table* tab = (Statistic_Table*)calloc(1, sizeof(Statistic_Table));
+
+    tab->coef = coef;
+    tab->n_key = n_key;
+
+    tab->total_value = (unsigned int*)calloc(n_key, sizeof(unsigned int));
+    tab->theGoodOne = (byte*)calloc(n_key, sizeof(byte));
+
+    tab->hrpd = (HPRD**)calloc(n_key, sizeof(HPRD*));
+
+    for (int i = 0; i < n_key; i++){
+        tab->hrpd[i] = (HPRD*)calloc(SIZE_STATISTIC_TABLE, sizeof(HPRD));
+
+        for (int j = 0; j < SIZE_STATISTIC_TABLE; j++){
+            tab->hrpd[i][j].index = j;
+        }
+    }
+    
+    return tab;
+}
+
+void Statistic_Table_destroy(Statistic_Table* statistic_table){
+    free(statistic_table->theGoodOne);
+    free(statistic_table->total_value);
+    for(int i = 0; i < statistic_table->n_key; i++){
+        free(statistic_table->hrpd[i]);
+    }
+    free(statistic_table->hrpd);
+    free(statistic_table);
 }

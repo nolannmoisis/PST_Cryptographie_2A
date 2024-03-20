@@ -3,9 +3,27 @@
 
 //inclusion des settings
 #include"settings.h"
+#define SIZE_STATISTIC_TABLE 16
 
 extern const byte ToysubBytesTab[16];
 extern const byte ToysubBytesTab_inverse[16];
+
+typedef struct HPRD_s{
+    byte index;
+    unsigned int value;
+} HPRD;
+
+typedef struct Statistic_Table_S{
+    int n_key;
+    int coef;
+    byte* theGoodOne;
+    unsigned int *total_value;
+    HPRD **hrpd;
+} Statistic_Table;
+
+Statistic_Table *Statistic_Table_create(int n_key, int coef);
+void Statistic_Table_destroy(Statistic_Table* statistic_table);
+int Statistic_Table_Compare(const void *a, const void *b);
 
 byte **ToyCipherKey_create(unsigned short nb);
 int ToyCipherKey_permutation(byte *tab);
@@ -23,6 +41,5 @@ byte *ToyCipher_encrypt(unsigned short message, unsigned short key);
 /// @return le ciphertext
 byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round);
 int byte_affichage(byte *text);
-short *ToyCipher_HPRD(int size);
-
+unsigned short *ToyCipher_HPRD(int size, unsigned short key, byte *good_bit);
 #endif

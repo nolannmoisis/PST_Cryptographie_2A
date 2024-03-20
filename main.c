@@ -84,11 +84,32 @@ int main(int argc, char **argv)
 
     srand(1562354);
 
-    int size = 50 * (1 << 7);
-    short *HPRD = ToyCipher_HPRD(size);
+    int q = (1 << 7);
+    
+    int C = 5;
+
+    Statistic_Table *statistic_table = Statistic_Table_create(5, C);
+
+    for(int i = 0; i < statistic_table->n_key; i++){
+        unsigned short *buffer = ToyCipher_HPRD(q * statistic_table->coef, (unsigned short)( rand() % (1 << SIZE_STATISTIC_TABLE) ), &statistic_table->theGoodOne[i]);
+        unsigned int total = 0;
+        for(int j = 0; j < SIZE_STATISTIC_TABLE; j++){
+            statistic_table->hrpd[i][j].value = buffer[j];
+            total += buffer[j];
+        }
+        free(buffer);
+        statistic_table->total_value[i] = total;
+        qsort(statistic_table->hrpd[i], SIZE_STATISTIC_TABLE, sizeof(HPRD), Statistic_Table_Compare);
+        printf("good : %x, best = %x, value = %d\n", statistic_table->theGoodOne[i], statistic_table->hrpd[i][0].index, statistic_table->hrpd[i][0].value);
+    }
+    
+    Statistic_Table_destroy(statistic_table);
+    
     // int value_key = (keys[5][0] << 12) ^ (keys[5][1] << 8) ^ (keys[5][2] << 4) ^ (keys[5][3]);
     // printf("Valeur de la bonne clef = %d\n\n", HPRD[value_key]);
     // ToyCipherKey_delete(keys);
+
+    // free(HPRD);
 
     // int max = 0;
     // int nb = 0;

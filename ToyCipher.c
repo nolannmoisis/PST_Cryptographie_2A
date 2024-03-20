@@ -9,6 +9,17 @@ int Statistic_Table_Compare(const void *a, const void *b){
     return y->value - x->value;
 }
 
+int Bits_Identify(const byte a, const byte b){
+    int count = 0;
+    byte n = a ^ b;
+    for(int i = 0; i < 4; i++){
+        if(n & 1)
+            count++;
+        n = n >> 1;
+    }
+    return count;
+}
+
 int byte_affichage(byte *text){
     if(!text){
         printf("ERROR TEXT\n");

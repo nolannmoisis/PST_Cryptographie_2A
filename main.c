@@ -82,14 +82,15 @@ int main(int argc, char **argv)
     free(c0);
     free(c1);*/
 
-    srand(1562354);
+    srand(time(NULL));
 
-    int q = (1 << 7);
+    int q = (1 << 6);
     
-    int C = 4;
+    int C = 5;
     float statistique[4] = {0.0f};
+    float bits_identify_count[4] = { 0.0f };
 
-    Statistic_Table *statistic_table = Statistic_Table_create(1000, C);
+    Statistic_Table *statistic_table = Statistic_Table_create(1500, C);
 
     for(int i = 0; i < statistic_table->n_key; i++){
         unsigned short *buffer = ToyCipher_HPRD(q * statistic_table->coef, (unsigned short)( rand() % (1 << SIZE_STATISTIC_TABLE) ), &statistic_table->theGoodOne[i]);
@@ -129,8 +130,14 @@ int main(int argc, char **argv)
                 }
             }
         }
+        bits_identify_count[Bits_Identify(statistic_table->hrpd[i][0].index , statistic_table->theGoodOne[i])] += 1.0f/statistic_table->n_key;
     }
-    printf("Proportion :\n\t100-75%%\t: %.1f\n\t75-50%%\t: %.1f\n\t50-25%%\t: %.1f\n\t25-0%%\t: %.1f\n", 100*statistique[0], 100*statistique[1], 100*statistique[2], 100*statistique[3]);
+    printf("Proportion : (C = %d, Number Keys = %d)\n", statistic_table->coef, statistic_table->n_key);
+    for (int i = 0, proportion = 100; i < 4; i++, proportion -= 25){
+        printf("\t%d - %d%%    \t: %.1f%%\n", proportion, proportion - 25, 100 * statistique[i]);
+        printf("\t%d Bits identify\t: %.1f%%\n\n", 4 - i, 100 * bits_identify_count[i]);
+    }
+    
     Statistic_Table_destroy(statistic_table);
     
     // int value_key = (keys[5][0] << 12) ^ (keys[5][1] << 8) ^ (keys[5][2] << 4) ^ (keys[5][3]);

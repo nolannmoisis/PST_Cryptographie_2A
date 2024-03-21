@@ -84,11 +84,11 @@ int main(int argc, char **argv)
 
     srand(time(NULL));
 
-    int q = (1 << 6);
+    int q = (1 << 7);
     
-    int C = 5;
+    int C = 1;
     float statistique[4] = {0.0f};
-    float bits_identify_count[4] = { 0.0f };
+    float bits_identify_count[5] = { 0.0f };
 
     Statistic_Table *statistic_table = Statistic_Table_create(1500, C);
 
@@ -130,12 +130,30 @@ int main(int argc, char **argv)
                 }
             }
         }
-        bits_identify_count[Bits_Identify(statistic_table->hrpd[i][0].index , statistic_table->theGoodOne[i])] += 1.0f/statistic_table->n_key;
+        int n = Bits_Identify(statistic_table->hrpd[i][0].index , statistic_table->theGoodOne[i]);
+        //TODO faire la proba de bit en commun
+        switch (n)
+        {
+        case 4:
+            bits_identify_count[4] += 1.0f/statistic_table->n_key;
+        case 3:
+            bits_identify_count[3] += 1.0f/statistic_table->n_key;
+        case 2:
+            bits_identify_count[2] += 1.0f/statistic_table->n_key;
+        case 1:
+            bits_identify_count[1] += 1.0f/statistic_table->n_key;
+        default:
+            bits_identify_count[0] += 1.0f/statistic_table->n_key;
+            break;
+        }
     }
     printf("Proportion : (C = %d, Number Keys = %d)\n", statistic_table->coef, statistic_table->n_key);
     for (int i = 0, proportion = 100; i < 4; i++, proportion -= 25){
         printf("\t%d - %d%%    \t: %.1f%%\n", proportion, proportion - 25, 100 * statistique[i]);
-        printf("\t%d Bits identify\t: %.1f%%\n\n", 4 - i, 100 * bits_identify_count[i]);
+    }
+    printf("\n");
+    for(int i = 4; i > -1; i--){
+        printf("\t%d Bits identify\t: %.1f%%\n", i, 100 * bits_identify_count[i]);
     }
     
     Statistic_Table_destroy(statistic_table);

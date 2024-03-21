@@ -42,6 +42,7 @@ byte *ToyCipher_encrypt(unsigned short message, unsigned short key);
 byte *ToyCipher_encryptRound(unsigned short plaintext, byte **keys, int r_Round);
 int byte_affichage(byte *text);
 unsigned short *ToyCipher_HPRD(int size, unsigned short key, byte *good_bit);
+void ToyCipher_Statistique(int q, int n_keys, int C);
 
 int Bits_Identify(const byte a, const byte b);
 

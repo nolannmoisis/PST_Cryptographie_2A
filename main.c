@@ -1,7 +1,24 @@
 #include "AES.h"
+#include "settings.h"
 
 int main(int argc, char** argv){
+    AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
 
+    byte cipherkey[16] = {0x00, 0x0E, 0x51, 0xEA, 0x00, 0x0E, 0x51, 0xEA, 0x00, 0x0E, 0x51, 0xEA, 0x00, 0x0E, 0x51, 0xEA};
+
+    setCipherKey(aes_128, cipherkey);
+
+    for(int i = 0; i < 11; i++){
+        printf("Clef round %d : ", i);
+        for(int j = 0; j < 4; j++){
+            for(int k = 0; k < 4; k++){
+                printf("%x", aes_128->roundKeys[i].val[j][k]);
+            }
+        }
+        printf("\n");
+    }
+
+    free(aes_128);
     return 0;
 }
 

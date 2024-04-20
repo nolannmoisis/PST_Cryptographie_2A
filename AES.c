@@ -154,7 +154,38 @@ void invMixColumns(State *state){
 
 //Fonction pour les clefs de chiffrement
 void setCipherKey(AES_128 *aes, byte cipherKey[16]){
-    //TODO
+    int i, j, k;
+
+    //Initialisation de la première clef
+    for(i = 0; i < 4; i++){
+        for(j = 0; j < 4; j++){
+            aes->roundKeys[0].val[i][j] = cipherKey[4*i+j];
+        }
+    }
+
+    //Création de la variable (02)^(i-1)
+    byte var = 0x01;
+    //Création des autres clef
+    for(k = 1; k < 11; k++){
+        //Mise à jour des constantes
+        byte x[4];
+        for(i = 0; i < 4; i++){
+            x[i] = aes->roundKeys[k-1].val[3][(i+1)%4];
+            x[i] = sBox[x[i]];
+        }
+        x[0] ^= var;
+        var = (var < 0x80) ? (var << 1) : (var << 1) ^ 0x11B;  
+
+        for(i = 0; i < 4; i++){
+            aes->roundKeys[k].val[0][i] = aes->roundKeys[k-1].val[0][i] ^ x[i];
+        }
+
+        for(i = 1; i < 4; i++){
+            for(j = 0; j < 4; j++){
+                aes->roundKeys[k].val[i][j] = aes->roundKeys[k-1].val[i][j] ^ aes->roundKeys[k].val[i-1][j];
+            }
+        }
+    }
 }
 
 void encrypt128(AES_128 *aes, byte message[16]){

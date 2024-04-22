@@ -26,4 +26,9 @@ void setCipherKey(AES_128 *aes, byte cipherKey[16]);
 void encrypt128(AES_128 *aes, byte message[16]);
 void decrypt128(AES_128 *aes, byte message[16]);
 
+//Modification des clefs
+void setCipherKey_delta_i(AES_128 *aes, byte i);
+void setCipherKey_delta_j(AES_128 *aes, byte j);
+void setCipherKeyRound(AES_128 *aes);
+
 #endif

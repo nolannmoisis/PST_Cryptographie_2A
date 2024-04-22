@@ -188,6 +188,43 @@ void setCipherKey(AES_128 *aes, byte cipherKey[16]){
     }
 }
 
+void setCipherKey_delta_i(AES_128 *aes, byte i){
+    aes->roundKeys[8].val[0][2] ^= i;
+    aes->roundKeys[8].val[0][3] ^= i;
+}
+
+void setCipherKey_delta_j(AES_128 *aes, byte j){
+    aes->roundKeys[8].val[1][0] ^= j;
+    aes->roundKeys[8].val[1][2] ^= j;
+}
+
+void setCipherKeyRound(AES_128 *aes){
+    int k, i, j;
+    //Création de la variable (02)^(i-1)
+    byte var = 0x1B;
+    //Création des autres clef
+    for(k = 9; k < 11; k++){
+        //Mise à jour des constantes
+        byte x[4];
+        for(i = 0; i < 4; i++){
+            x[i] = aes->roundKeys[k-1].val[3][(i+1)%4];
+            x[i] = sBox[x[i]];
+        }
+        x[0] ^= var;
+        var = (var < 0x80) ? (var << 1) : (var << 1) ^ 0x11B;  
+
+        for(i = 0; i < 4; i++){
+            aes->roundKeys[k].val[0][i] = aes->roundKeys[k-1].val[0][i] ^ x[i];
+        }
+
+        for(i = 1; i < 4; i++){
+            for(j = 0; j < 4; j++){
+                aes->roundKeys[k].val[i][j] = aes->roundKeys[k-1].val[i][j] ^ aes->roundKeys[k].val[i-1][j];
+            }
+        }
+    }
+}
+
 void encrypt128(AES_128 *aes, byte message[16]){
     //TODO
 }

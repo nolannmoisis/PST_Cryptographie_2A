@@ -59,6 +59,22 @@ byte times03(byte x)
     return x ^ times02(x);
 }
 
+byte times0E(byte x) {
+    return times02(times02(times02(x))) ^ times02(times02(x)) ^ times02(x);
+}
+
+byte times0B(byte x) {
+    return times02(times02(times02(x))) ^ x;
+}
+
+byte times0D(byte x) {
+    return times02(times02(times02(x))) ^ times02(x) ^ x;
+}
+
+byte times09(byte x) {
+    return times02(times02(x)) ^ x;
+}
+
 void addRoundKey(State *state, State *key)
 {
     int i, j;
@@ -149,7 +165,24 @@ void invShiftRows(State *state){
 }
 
 void invMixColumns(State *state){
-    //TODO
+    mat_func inv_mat = { {times0E, times0B, times0D, times09},
+                         {times09, times0E, times0B, times0D},
+                         {times0D, times09, times0E, times0B},
+                         {times0B, times0D, times09, times0E} };
+
+    int i, j, k;
+    for (i = 0; i < 4; i++) {
+        byte tmp[4];
+        for (j = 0; j < 4; j++) {
+            tmp[j] = 0;
+            for (k = 0; k < 4; k++) {
+                tmp[j] ^= inv_mat[j][k](state->val[k][i]);
+            }
+        }
+        for (j = 0; j < 4; j++) {
+            state->val[j][i] = tmp[j];
+        }
+    }
 }
 
 //Fonction pour les clefs de chiffrement

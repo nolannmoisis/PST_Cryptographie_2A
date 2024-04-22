@@ -4,15 +4,42 @@
 int main(int argc, char** argv){
     AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
 
-    byte cipherkey[16] = {0x00, 0x0E, 0x51, 0xEA, 0x00, 0x0E, 0x51, 0xEA, 0x00, 0x0E, 0x51, 0xEA, 0x00, 0x0E, 0x51, 0xEA};
+    byte cipherkey[16] = { 0 };
 
+    long int number = 0;
     setCipherKey(aes_128, cipherkey);
+    
+    //Recherche d'une clef correspondante
+    while(!((aes_128->roundKeys[8].val[0][3] == 0) && (aes_128->roundKeys[8].val[1][0] == 0))){
+        printf("Nombre de clef essayer : %ld\n", number++);
+        for(int i = 0; i < 16; i++){
+            if(cipherkey[i] == 0xFF)
+                cipherkey[i] = 0x00;
+            else{
+                cipherkey[i]++;
+                break;
+            }
+        }
+        setCipherKey(aes_128, cipherkey);
+    }
+
+    printf("\nClef trouver :\n");
+
+
 
     for(int i = 0; i < 11; i++){
-        printf("Clef round %d : ", i);
+        printf("Clef round %d\t:\t", i);
         for(int j = 0; j < 4; j++){
             for(int k = 0; k < 4; k++){
-                printf("%x", aes_128->roundKeys[i].val[j][k]);
+                if(!(aes_128->roundKeys[i].val[j][k] >> 4))
+                    printf("0");
+                else
+                    printf("%x", aes_128->roundKeys[i].val[j][k] >> 4);
+
+                if(!(aes_128->roundKeys[i].val[j][k] & 0xF))
+                    printf("0");
+                else
+                    printf("%x", aes_128->roundKeys[i].val[j][k] & 0xF);
             }
         }
         printf("\n");
@@ -22,7 +49,9 @@ int main(int argc, char** argv){
     return 0;
 }
 
-
+/*
+    Clef correspondante 3dd20000000000000000000000000000
+*/
 
 
 

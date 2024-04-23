@@ -4,26 +4,29 @@
 int main(int argc, char** argv){
     AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
 
-    byte cipherkey[16] = { 0 };
+    byte cipherkey[16] = { 0x00,0x0E,0x51,0xEA,0x00,0x0E,0x51,0xEA,0x00,0x0E,0x51,0xEA,0x00,0x0E,0x51,0xEA };
+
+    // 0x00, 0x00, 0x00, 0x00, 0x0E, 0x0E, 0x0E, 0x0E, 0x51, 0x51, 0x51, 0x51, 0xEA, 0xEA, 0xEA, 0xEA
+    // 0x00,0x0E,0x51,0xEA,0x00,0x0E,0x51,0xEA,0x00,0x0E,0x51,0xEA,0x00,0x0E,0x51,0xEA
 
     long int number = 0;
     setCipherKey(aes_128, cipherkey);
     
     //Recherche d'une clef correspondante
-    while(!((aes_128->roundKeys[8].val[0][3] == 0) && (aes_128->roundKeys[8].val[1][0] == 0))){
-        printf("Nombre de clef essayer : %ld\n", number++);
-        for(int i = 0; i < 16; i++){
-            if(cipherkey[i] == 0xFF)
-                cipherkey[i] = 0x00;
-            else{
-                cipherkey[i]++;
-                break;
-            }
-        }
-        setCipherKey(aes_128, cipherkey);
-    }
+    // while(!((aes_128->roundKeys[8].val[0][3] == 0) && (aes_128->roundKeys[8].val[1][0] == 0))){
+    //     // printf("Nombre de clef essayer : %ld\n", number++);
+    //     for(int i = 0; i < 16; i++){
+    //         if(cipherkey[i] == 0xFF)
+    //             cipherkey[i] = 0x00;
+    //         else{
+    //             cipherkey[i]++;
+    //             break;
+    //         }
+    //     }
+    //     setCipherKey(aes_128, cipherkey);
+    // }
 
-    printf("\nClef trouver :\n");
+    // printf("\nClef trouver :\n");
 
 
 
@@ -45,34 +48,22 @@ int main(int argc, char** argv){
         printf("\n");
     }
 
-    byte message[16] = {0};
+    byte message[16] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
 
     for(int i = 0; i < 4; i++){
-        for (int j = i; j < 16; j += 4) {
-            if (message[j] >= 10)
-            {
-                printf("[%c] ",message[j] + 'A' - 10);
-            }
-            else{
-                printf("[%d] ",message[j]);
-            }            
+        for(int j = 0; j < 4; j++){
+            printf("[%x]",aes_128->roundKeys[0].val[j][i]);
         }
         printf("\n");
     }
+
+    printf("\n");
+    encrypt128(aes_128, message);
     printf("\n");
 
-    encrypt128(aes_128, message);
-
     for(int i = 0; i < 4; i++){
-        for (int j = i; j < 16; j += 4) {
-            if (message[j] >= 10)
-            {
-                printf("%d", message[j]);
-                printf("[%c] ",message[j] + 'A' - 10);
-            }
-            else{
-                printf("[%d] ",message[j]);
-            }            
+        for (int j = 0; j < 4; j++) {
+            printf("[%x]", message[4*i + j]);       
         }
         printf("\n");
     }

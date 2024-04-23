@@ -45,6 +45,40 @@ int main(int argc, char** argv){
         printf("\n");
     }
 
+    byte message[16] = {0};
+
+    for(int i = 0; i < 4; i++){
+        for (int j = i; j < 16; j += 4) {
+            if (message[j] >= 10)
+            {
+                printf("[%c] ",message[j] + 'A' - 10);
+            }
+            else{
+                printf("[%d] ",message[j]);
+            }            
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+    encrypt128(aes_128, message);
+
+    for(int i = 0; i < 4; i++){
+        for (int j = i; j < 16; j += 4) {
+            if (message[j] >= 10)
+            {
+                printf("%d", message[j]);
+                printf("[%c] ",message[j] + 'A' - 10);
+            }
+            else{
+                printf("[%d] ",message[j]);
+            }            
+        }
+        printf("\n");
+    }
+    printf("\n");
+
+
     free(aes_128);
     return 0;
 }

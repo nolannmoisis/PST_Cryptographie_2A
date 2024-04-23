@@ -13,6 +13,10 @@ typedef struct AES_128_s {
     State roundKeys[11];
 } AES_128;
 
+typedef struct Inner_State_s {
+    State inner[22];
+}Inner_State;
+
 void addRoundKey(State *state, State *key);
 void subBytes(State *state);
 void shiftRows(State *state);

@@ -82,7 +82,7 @@ void addRoundKey(State *state, State *key)
     {
         for (j = 0; j < 4; j++)
         {
-            state->val[i][j] ^= key->val[j][i];
+            state->val[i][j] ^= key->val[i][j];
         }
     }
 }
@@ -192,7 +192,7 @@ void setCipherKey(AES_128 *aes, byte cipherKey[16]){
     //Initialisation de la première clef
     for(i = 0; i < 4; i++){
         for(j = 0; j < 4; j++){
-            aes->roundKeys[0].val[i][j] = cipherKey[4*i+j];
+            aes->roundKeys[0].val[j][i] = cipherKey[4*i+j];
         }
     }
 
@@ -203,19 +203,19 @@ void setCipherKey(AES_128 *aes, byte cipherKey[16]){
         //Mise à jour des constantes
         byte x[4];
         for(i = 0; i < 4; i++){
-            x[i] = aes->roundKeys[k-1].val[3][(i+1)%4];
+            x[i] = aes->roundKeys[k-1].val[(i+1)%4][3];
             x[i] = sBox[x[i]];
         }
         x[0] ^= var;
         var = (var < 0x80) ? (var << 1) : (var << 1) ^ 0x11B;  
 
         for(i = 0; i < 4; i++){
-            aes->roundKeys[k].val[0][i] = aes->roundKeys[k-1].val[0][i] ^ x[i];
+            aes->roundKeys[k].val[i][0] = aes->roundKeys[k-1].val[i][0] ^ x[i];
         }
 
         for(i = 1; i < 4; i++){
             for(j = 0; j < 4; j++){
-                aes->roundKeys[k].val[i][j] = aes->roundKeys[k-1].val[i][j] ^ aes->roundKeys[k].val[i-1][j];
+                aes->roundKeys[k].val[j][i] = aes->roundKeys[k-1].val[j][i] ^ aes->roundKeys[k].val[j][i-1];
             }
         }
     }

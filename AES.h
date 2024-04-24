@@ -27,8 +27,8 @@ void invShiftRows(State *state);
 void invMixColumns(State *state);
 
 void setCipherKey(AES_128 *aes, byte cipherKey[16]);
-void encrypt128(AES_128 *aes, byte message[16]);
-void decrypt128(AES_128 *aes, byte message[16]);
+void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state);
+void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state);
 
 //Modification des clefs
 void setCipherKey_delta_i(AES_128 *aes, byte i);

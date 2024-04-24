@@ -258,8 +258,7 @@ void setCipherKeyRound(AES_128 *aes){
     }
 }
 
-void encrypt128(AES_128 *aes, byte message[16]){
-    Inner_State *all_state = (Inner_State*)calloc(1, sizeof(Inner_State));
+void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
     State *cur_state = (State*)malloc(sizeof(State));
     for (int i = 0; i < 4; i++)
     {
@@ -304,6 +303,47 @@ void encrypt128(AES_128 *aes, byte message[16]){
     free(cur_state);
 }
 
-void decrypt128(AES_128 *aes, byte message[16]){
-    //TODO
+void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
+    State *cur_state = (State*)malloc(sizeof(State));
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            cur_state->val[j][i] = message[4*i+j];
+        }
+    }
+
+    all_state->inner[0] = *cur_state;
+    addRoundKey(cur_state, &aes->roundKeys[10]);
+    all_state->inner[1] = *cur_state;
+
+    invShiftRows(cur_state);
+    invSubBytes(cur_state);
+    all_state->inner[2] = *cur_state;
+
+    for (int i = 10 - 1, k = 3; i > 0; i--)
+    {
+        addRoundKey(cur_state, &aes->roundKeys[i]);
+        all_state->inner[k++] = *cur_state;
+        
+        invMixColumns(cur_state);
+
+        invShiftRows(cur_state);
+
+        invSubBytes(cur_state);
+
+        all_state->inner[k++] = *cur_state;
+    }
+
+    addRoundKey(cur_state, &aes->roundKeys[0]);
+    all_state->inner[21] = *cur_state;
+    
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            message[4*i+j] = cur_state->val[i][j];
+        }
+    }
+    free(cur_state);
 }

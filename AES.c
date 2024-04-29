@@ -64,15 +64,15 @@ byte times0E(byte x) {
 }
 
 byte times0B(byte x) {
-    return times02(times02(times02(x))) ^ x;
+    return times02(times02(times02(x))) ^ times02(x) ^ times01(x);
 }
 
 byte times0D(byte x) {
-    return times02(times02(times02(x))) ^ times02(x) ^ x;
+    return times02(times02(times02(x))) ^ times02(times02(x)) ^ x;
 }
 
 byte times09(byte x) {
-    return times02(times02(x)) ^ x;
+    return times02(times02(times02(x))) ^ times01(x);
 }
 
 void addRoundKey(State *state, State *key)
@@ -155,7 +155,7 @@ void invShiftRows(State *state){
         byte tmp[4];
         for (j = 0; j < 4; j++)
         {
-            tmp[j] = state->val[i][(j+i)%4];
+            tmp[(j+i)%4] = state->val[i][j];
         }
         for (j = 0; j < 4; j++)
         {
@@ -240,19 +240,19 @@ void setCipherKeyRound(AES_128 *aes){
         //Mise à jour des constantes
         byte x[4];
         for(i = 0; i < 4; i++){
-            x[i] = aes->roundKeys[k-1].val[3][(i+1)%4];
+            x[i] = aes->roundKeys[k-1].val[(i+1)%4][3];
             x[i] = sBox[x[i]];
         }
         x[0] ^= var;
         var = (var < 0x80) ? (var << 1) : (var << 1) ^ 0x11B;  
 
         for(i = 0; i < 4; i++){
-            aes->roundKeys[k].val[0][i] = aes->roundKeys[k-1].val[0][i] ^ x[i];
+            aes->roundKeys[k].val[i][0] = aes->roundKeys[k-1].val[i][0] ^ x[i];
         }
 
         for(i = 1; i < 4; i++){
             for(j = 0; j < 4; j++){
-                aes->roundKeys[k].val[i][j] = aes->roundKeys[k-1].val[i][j] ^ aes->roundKeys[k].val[i-1][j];
+                aes->roundKeys[k].val[j][i] = aes->roundKeys[k-1].val[j][i] ^ aes->roundKeys[k].val[j][i-1];
             }
         }
     }
@@ -297,7 +297,7 @@ void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
     {
         for (int j = 0; j < 4; j++)
         {
-            message[4*i+j] = cur_state->val[i][j];
+            message[4*i+j] = cur_state->val[j][i];
         }
     }
     free(cur_state);
@@ -313,18 +313,18 @@ void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
         }
     }
 
-    all_state->inner[0] = *cur_state;
+    all_state->inner[21] = *cur_state;
     addRoundKey(cur_state, &aes->roundKeys[10]);
-    all_state->inner[1] = *cur_state;
+    all_state->inner[20] = *cur_state;
 
     invShiftRows(cur_state);
     invSubBytes(cur_state);
-    all_state->inner[2] = *cur_state;
+    all_state->inner[19] = *cur_state;
 
-    for (int i = 10 - 1, k = 3; i > 0; i--)
+    for (int i = 9, k = 18; i > 0; i--)
     {
         addRoundKey(cur_state, &aes->roundKeys[i]);
-        all_state->inner[k++] = *cur_state;
+        all_state->inner[k--] = *cur_state;
         
         invMixColumns(cur_state);
 
@@ -332,17 +332,17 @@ void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
 
         invSubBytes(cur_state);
 
-        all_state->inner[k++] = *cur_state;
+        all_state->inner[k--] = *cur_state;
     }
 
     addRoundKey(cur_state, &aes->roundKeys[0]);
-    all_state->inner[21] = *cur_state;
+    all_state->inner[0] = *cur_state;
     
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            message[4*i+j] = cur_state->val[i][j];
+            message[4*i+j] = cur_state->val[j][i];
         }
     }
     free(cur_state);

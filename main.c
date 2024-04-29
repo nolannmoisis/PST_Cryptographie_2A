@@ -2,17 +2,16 @@
 #include "settings.h"
 
 int main(int argc, char** argv){
-    AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
+
+    /*AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
 
     byte cipherkey[16] = { 0 };
 
-    long int number = 0;
     setCipherKey(aes_128, cipherkey);
     
     //Recherche d'une clef correspondante
     while(!((aes_128->roundKeys[8].val[0][3] == 0) && (aes_128->roundKeys[8].val[1][0] == 0))){
         // printf("Nombre de clef essayer : %ld\n", number++);
-        number++;
         for(int i = 0; i < 16; i++){
             if(cipherkey[i] == 0xFF)
                 cipherkey[i] = 0x00;
@@ -24,81 +23,152 @@ int main(int argc, char** argv){
         setCipherKey(aes_128, cipherkey);
     }
 
-    printf("essais %ld\nClef trouver :\n",number);
-
-
-
-    for(int i = 0; i < 11; i++){
-        printf("Clef round %d\t:\t", i);
-        for(int j = 0; j < 4; j++){
-            for(int k = 0; k < 4; k++){
-                if(!(aes_128->roundKeys[i].val[j][k] >> 4))
-                    printf("0");
-                else
-                    printf("%x", aes_128->roundKeys[i].val[j][k] >> 4);
-
-                if(!(aes_128->roundKeys[i].val[j][k] & 0xF))
-                    printf("0");
-                else
-                    printf("%x", aes_128->roundKeys[i].val[j][k] & 0xF);
-            }
-        }
-        printf("\n");
-    }
-
-    Inner_State *encry_inner = (Inner_State*)calloc(1, sizeof(Inner_State));
-    Inner_State *decry_inner = (Inner_State*)calloc(1, sizeof(Inner_State));
-    byte message[16] = { 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+    printf("trouver la clef est :");
 
     for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
-            printf("[%x]",aes_128->roundKeys[0].val[i][j]);
+            if((aes_128->roundKeys[0].val[i][j] & 0xF0) == 0x00)
+                printf("0");
+            else
+                printf("%x", (aes_128->roundKeys[0].val[i][j]&0xF0) >> 4);
+            if((aes_128->roundKeys[0].val[i][j] & 0xF) == 0x0)
+                printf("0");
+            else
+                printf("%x", aes_128->roundKeys[0].val[i][j]&0xF);
         }
-        printf("\n");
-    }
-    printf("\n");
+    }*/
 
-
-    for(int i = 0; i < 4; i++){
-        for (int j = 0; j < 4; j++) {
-            printf("[%x]", message[4*i + j]);       
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    printf("\n");
-    encrypt128(aes_128, message, encry_inner);
-    printf("\n");
-
-    for(int i = 0; i < 4; i++){
-        for (int j = 0; j < 4; j++) {
-            printf("[%x]", message[4*i + j]);       
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    decrypt128(aes_128, message, decry_inner);
-    printf("\n");
-
-    for(int i = 0; i < 4; i++){
-        for (int j = 0; j < 4; j++) {
-            printf("[%x]", message[4*i + j]);       
-        }
-        printf("\n");
-    }
-    printf("\n");
 
     
-    free(encry_inner);
-    free(decry_inner);
-    free(aes_128);
+    AES_128 *key_0 = (AES_128*)malloc(sizeof(AES_128));
+    AES_128 *key_1 = (AES_128*)malloc(sizeof(AES_128));
+    AES_128 *key_2 = (AES_128*)malloc(sizeof(AES_128));
+
+    Inner_State *inner_state_0 = (Inner_State*)malloc(sizeof(Inner_State));
+    Inner_State *inner_state_1 = (Inner_State*)malloc(sizeof(Inner_State));
+    Inner_State *inner_state_2 = (Inner_State*)malloc(sizeof(Inner_State));
+
+    //Ciphertext C = 00000000000000000000000000000000
+    byte C00[16] = {0};
+    byte C01[16] = {0};
+    byte P[16] = {0};
+
+    //Bonne clef key = 1f 00 00 00      00 00 00 00     00 00 00 00     10 00 00 00
+    //  0x1f, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 
+    byte Key_0[16] = { 0x1f, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    byte Key_1[16] = { 0x1f, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    byte Key_2[16] = { 0x1f, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+    setCipherKey(key_0, Key_0);
+    setCipherKey(key_1, Key_1);
+    setCipherKey(key_2, Key_2);
+
+    setCipherKey_delta_i(key_1, 0xAB);
+    setCipherKey_delta_j(key_2, 0xAA);
+
+    setCipherKeyRound(key_1);
+    setCipherKeyRound(key_2);
+
+    decrypt128(key_0, C00, inner_state_0);
+    decrypt128(key_2, C01, inner_state_2);
+
+    for(int i = 0; i < 16; i++)
+        P[i] = C00[i];
+
+    encrypt128(key_1, P, inner_state_1);
+
+    // printf("Key :\n");
+    // for(int k = 0; k < 11; k++){
+    //     for(int i = 0; i < 4; i++){
+    //         for(int j = 0; j < 4; j++){
+    //             if((key_0->roundKeys[k].val[i][j]&0xF0) == 0x00)
+    //                 printf("[0");
+    //             else
+    //                 printf("[%x",(key_0->roundKeys[k].val[i][j]&0xF0) >> 4);
+    //             if((key_0->roundKeys[k].val[i][j]&0xF) == 0x0)
+    //                 printf("0]");
+    //             else
+    //                 printf("%x]",key_0->roundKeys[k].val[i][j]&0xF);
+    //         }
+    //         printf("\t");
+    //         for(int j = 0; j < 4; j++){
+    //             if((key_1->roundKeys[k].val[i][j]&0xF0) == 0x00)
+    //                 printf("[0");
+    //             else
+    //                 printf("[%x",(key_1->roundKeys[k].val[i][j]&0xF0) >> 4);
+    //             if((key_1->roundKeys[k].val[i][j]&0xF) == 0x0)
+    //                 printf("0]");
+    //             else
+    //                 printf("%x]",key_1->roundKeys[k].val[i][j]&0xF);
+    //         }
+    //         printf("\t");
+    //         for(int j = 0; j < 4; j++){
+    //             if((key_2->roundKeys[k].val[i][j]&0xF0) == 0x00)
+    //                 printf("[0");
+    //             else
+    //                 printf("[%x",(key_2->roundKeys[k].val[i][j]&0xF0) >> 4);
+    //             if((key_2->roundKeys[k].val[i][j]&0xF) == 0x0)
+    //                 printf("0]");
+    //             else
+    //                 printf("%x]",key_2->roundKeys[k].val[i][j]&0xF);
+    //         }
+    //         printf("\n");
+    //     }
+    //     printf("\n");
+    // }
+
+
+    for(int c = 0; c < 22; c++){
+        printf("S%d\n",c);
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                if((inner_state_0->inner[c].val[i][j]&0xF0) == 0x00)
+                    printf("[0");
+                else
+                    printf("[%x",(inner_state_0->inner[c].val[i][j]&0xF0) >> 4);
+                if((inner_state_0->inner[c].val[i][j]&0xF) == 0x0)
+                    printf("0]");
+                else
+                    printf("%x]",inner_state_0->inner[c].val[i][j]&0xF);
+            }
+            printf("\t");
+            for(int j = 0; j < 4; j++){
+                if((inner_state_1->inner[c].val[i][j]&0xF0) == 0x00)
+                    printf("[0");
+                else
+                    printf("[%x",(inner_state_1->inner[c].val[i][j]&0xF0) >> 4);
+                if((inner_state_1->inner[c].val[i][j]&0xF) == 0x0)
+                    printf("0]");
+                else
+                    printf("%x]",inner_state_1->inner[c].val[i][j]&0xF);
+            }
+            printf("\t");
+            for(int j = 0; j < 4; j++){
+                if((inner_state_2->inner[c].val[i][j]&0xF0) == 0x00)
+                    printf("[0");
+                else
+                    printf("[%x",(inner_state_2->inner[c].val[i][j]&0xF0) >> 4);
+                if((inner_state_2->inner[c].val[i][j]&0xF) == 0x0)
+                    printf("0]");
+                else
+                    printf("%x]",inner_state_2->inner[c].val[i][j]&0xF);
+            }
+            printf("\n");
+        }
+        printf("\n");
+    }
+
+    free(key_0);
+    free(key_1);
+    free(key_2);
+    free(inner_state_0);
+    free(inner_state_1);
+    free(inner_state_2);
     return 0;
 }
 
 /*
-    Clef correspondante 3dd20000000000000000000000000000
+    Clef correspondante 1f000000000000000000000010000000
 */
 
 

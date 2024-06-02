@@ -41,4 +41,6 @@ void setCipherKeyRound(AES_128 *aes);
 
 Mat_Keys Matrice_Keys_create(byte initial_key[16]);
 
+Inner_State** function_f (Mat_Keys mat_key, byte** messages);
+
 #endif

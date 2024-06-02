@@ -105,6 +105,72 @@ Mat_Keys Matrice_Keys_create(byte initial_key[16]){
     return mat_keys;
 }
 
+Inner_State **function_f(Mat_Keys mat_key, byte **messages)
+{
+    Inner_State** inner = (Inner_State**)calloc(256, sizeof(Inner_State*));
+    for (int i = 0; i < 256; i++)
+    {
+        inner[i] = (Inner_State*)calloc(256, sizeof(Inner_State));
+        for (int j = 0; j < 256; j++)
+        {
+            AES_128 *aes = (AES_128*)(1, sizeof(AES_128));
+            setCipherKey(aes, mat_key.key[i][j]);
+            decrypt128(aes, messages[i], &inner[i][j]);
+        }
+    }
+
+    return inner;
+}
+
+int is_equal (State state1, State state2)
+{
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            if (state1.val[i][j] != state2.val[i][j])
+            {
+                return 0;
+            }
+        }
+    }
+    return 1;
+}
+
+int compare(Inner_State **inner, int nb_state)
+{
+    int cmp = 0;
+    State *diff_state = (State*)calloc(256*256, sizeof(State));
+    for (int i = 0; i < 256; i++)
+    {
+        for (int j = 0; j < 256; j++)
+        {
+            if (cmp == 0)
+            {
+                diff_state[0] = inner[i][j].inner[nb_state];
+                cmp++;
+                break;
+            }
+            int k = 0;
+            for (k; k < cmp; k++)
+            {
+                if (is_equal(diff_state[i], inner[i][j].inner[nb_state]))
+                {
+                    break;
+                }
+
+            }
+            if (k == cmp)
+            {
+                diff_state[cmp] = inner[i][j].inner[nb_state];
+                cmp++;
+            }
+        }
+    }
+
+    return cmp;
+}
+
 //Fonction du encrypt
 void subBytes(State *state){
     int i, j;

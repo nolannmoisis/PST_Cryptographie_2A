@@ -5,6 +5,10 @@ typedef unsigned char byte;
 
 typedef byte (*mat_func[4][4])(byte);
 
+typedef struct Mat_Keys_S{
+    byte key[256][256][16];
+} Mat_Keys;
+
 typedef struct State_s {
     byte val[4][4];
 } State;
@@ -34,5 +38,7 @@ void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state);
 void setCipherKey_delta_i(AES_128 *aes, byte i);
 void setCipherKey_delta_j(AES_128 *aes, byte j);
 void setCipherKeyRound(AES_128 *aes);
+
+Mat_Keys Matrice_Keys_create(byte initial_key[16]);
 
 #endif

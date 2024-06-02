@@ -87,6 +87,24 @@ void addRoundKey(State *state, State *key)
     }
 }
 
+Mat_Keys Matrice_Keys_create(byte initial_key[16]){
+    Mat_Keys mat_keys;
+
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 256; j++){
+            for(int c = 0; c < 16; c++){
+                mat_keys.key[i][j][c] = initial_key[c];
+                if(c == 1)
+                    mat_keys.key[i][j][c] = (char)i;
+                else if (c == 12)
+                    mat_keys.key[i][j][c] = (char)j;
+            }
+        }
+    }
+
+    return mat_keys;
+}
+
 //Fonction du encrypt
 void subBytes(State *state){
     int i, j;

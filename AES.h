@@ -5,10 +5,6 @@ typedef unsigned char byte;
 
 typedef byte (*mat_func[4][4])(byte);
 
-typedef struct Mat_Keys_S{
-    byte key[256][256][16];
-} Mat_Keys;
-
 typedef struct State_s {
     byte val[4][4];
 } State;
@@ -16,6 +12,12 @@ typedef struct State_s {
 typedef struct AES_128_s {
     State roundKeys[11];
 } AES_128;
+
+typedef struct Dimention_Biclique_s{
+    byte ciphertext[16];
+    byte sub_state[16];
+    AES_128 keys;
+} Dimention_Biclique;
 
 typedef struct Inner_State_s {
     State inner[22];
@@ -32,15 +34,19 @@ void invMixColumns(State *state);
 
 void setCipherKey(AES_128 *aes, byte cipherKey[16]);
 void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state);
+void f_encrypt128(AES_128 *aes, byte state[16], Inner_State *all_state);
+void g_encrypt128(AES_128 *aes, byte plaintext[16], Inner_State *all_state);
 void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state);
 
 //Modification des clefs
 void setCipherKey_delta_i(AES_128 *aes, byte i);
 void setCipherKey_delta_j(AES_128 *aes, byte j);
 void setCipherKeyRound(AES_128 *aes);
+void setCipherKey_recomputeFrom8(AES_128 *aes);
 
-Mat_Keys Matrice_Keys_create(byte initial_key[16]);
+Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]);
 
-Inner_State** function_f (Mat_Keys mat_key, byte** messages);
+int is_equal(State state1, State state2);
+Inner_State** function_f (Dimention_Biclique mat_key, byte** messages);
 
 #endif

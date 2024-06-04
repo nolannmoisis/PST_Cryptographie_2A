@@ -7,8 +7,10 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "*.h",
-                "*.c",
+                "settings.h",
+                "AES.h",
+                "AES.c",
+                "main.c",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-lm"

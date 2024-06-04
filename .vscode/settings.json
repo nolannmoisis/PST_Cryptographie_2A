@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "*.json": "jsonc",
+        "aes.h": "c"
+    }
+}

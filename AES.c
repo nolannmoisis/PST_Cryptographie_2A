@@ -87,39 +87,76 @@ void addRoundKey(State *state, State *key)
     }
 }
 
-Mat_Keys Matrice_Keys_create(byte initial_key[16]){
-    Mat_Keys mat_keys;
+Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]){
+    Dimention_Biclique **d_dimention_biclique = (Dimention_Biclique**)malloc(256 * sizeof(Dimention_Biclique*));
+    for(int i = 0; i < 256; i++)
+        d_dimention_biclique[i] = (Dimention_Biclique*)calloc(256, sizeof(Dimention_Biclique));
 
-    for(int i = 0; i < 256; i++){
-        for(int j = 0; j < 256; j++){
-            for(int c = 0; c < 16; c++){
-                mat_keys.key[i][j][c] = initial_key[c];
-                if(c == 1)
-                    mat_keys.key[i][j][c] = (char)i;
-                else if (c == 12)
-                    mat_keys.key[i][j][c] = (char)j;
-            }
+    AES_128 init_key;
+    for(int a = 0; a < 4; a++){
+        for(int b = 0; b < 4; b++) {
+            init_key.roundKeys[8].val[a][b] = initial_key[4*b + a];
         }
     }
 
-    return mat_keys;
+    setCipherKeyRound(&init_key);
+    Inner_State evolution;
+    f_encrypt128(&init_key, d_dimention_biclique[0][0].sub_state, &evolution);
+
+    for(int a = 0; a < 4; a++){
+        for(int b = 0; b < 4; b++) {
+            d_dimention_biclique[0][0].ciphertext[4*b + a] = evolution.inner[21].val[a][b];
+        }
+    }
+
+    for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 256; j++){
+            for(int a = 0; a < 4; a++){
+                for(int b = 0; b < 4; b++) {
+                    int index = 4*b+a;
+                    d_dimention_biclique[i][j].sub_state[index] = d_dimention_biclique[0][0].sub_state[index];
+                    d_dimention_biclique[i][j].ciphertext[index] = d_dimention_biclique[0][0].ciphertext[index];
+                    switch (index)
+                    {
+                    case 1:
+                    case 9:
+                        d_dimention_biclique[i][j].sub_state[index] ^= j;
+                        break;
+                    case 8:
+                    case 12:
+                        d_dimention_biclique[i][j].ciphertext[index] ^= i;
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
+            d_dimention_biclique[i][j].keys.roundKeys[8] = init_key.roundKeys[8];
+            setCipherKey_delta_i(&d_dimention_biclique[i][j].keys, i);
+            setCipherKey_delta_j(&d_dimention_biclique[i][j].keys, j);
+            setCipherKey_recomputeFrom8(&d_dimention_biclique[i][j].keys);
+        }
+    }
+
+    return d_dimention_biclique;
 }
 
-Inner_State **function_f(Mat_Keys mat_key, byte **messages)
+Inner_State **function_f(Dimention_Biclique mat_key, byte **messages)
 {
-    Inner_State** inner = (Inner_State**)calloc(256, sizeof(Inner_State*));
+    /*Inner_State** inner = (Inner_State**)calloc(256, sizeof(Inner_State*));
     for (int i = 0; i < 256; i++)
     {
         inner[i] = (Inner_State*)calloc(256, sizeof(Inner_State));
         for (int j = 0; j < 256; j++)
         {
-            AES_128 *aes = (AES_128*)(1, sizeof(AES_128));
+            AES_128 *aes = (AES_128*)calloc(1, sizeof(AES_128));
             setCipherKey(aes, mat_key.key[i][j]);
             decrypt128(aes, messages[i], &inner[i][j]);
         }
     }
 
-    return inner;
+    return inner;*/
+    return NULL;
 }
 
 int is_equal (State state1, State state2)
@@ -152,7 +189,7 @@ int compare(Inner_State **inner, int nb_state)
                 break;
             }
             int k = 0;
-            for (k; k < cmp; k++)
+            for (k = 0; k < cmp; k++)
             {
                 if (is_equal(diff_state[i], inner[i][j].inner[nb_state]))
                 {
@@ -342,6 +379,24 @@ void setCipherKeyRound(AES_128 *aes){
     }
 }
 
+void setCipherKey_recomputeFrom8(AES_128 *aes){
+    byte coef[8] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
+    setCipherKeyRound(aes);
+    for(int r = 7; r >= 0; r--){
+        for(int i = 1; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                aes->roundKeys[r].val[j][i] = aes->roundKeys[r+1].val[j][i] ^ aes->roundKeys[r+1].val[j][i-1];
+            }
+        }   
+        byte x0[4] = {aes->roundKeys[r].val[1][3], aes->roundKeys[r].val[2][3], aes->roundKeys[r].val[3][3], aes->roundKeys[r].val[0][3]};
+        for(int i = 0; i < 4; i++)
+            x0[i] = sBox[x0[i]];
+        x0[0] ^= coef[r];
+        for(int i = 0; i < 4; i++)
+            aes->roundKeys[r].val[i][0] = x0[i] ^ aes->roundKeys[r+1].val[i][0];
+    }
+}
+
 void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
     State *cur_state = (State*)malloc(sizeof(State));
     for (int i = 0; i < 4; i++)
@@ -377,13 +432,13 @@ void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
     addRoundKey(cur_state, &aes->roundKeys[10]);
     all_state->inner[21] = *cur_state;
     
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            message[4*i+j] = cur_state->val[j][i];
-        }
-    }
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     for (int j = 0; j < 4; j++)
+    //     {
+    //         message[4*i+j] = cur_state->val[j][i];
+    //     }
+    // }
     free(cur_state);
 }
 
@@ -422,12 +477,73 @@ void decrypt128(AES_128 *aes, byte message[16], Inner_State *all_state){
     addRoundKey(cur_state, &aes->roundKeys[0]);
     all_state->inner[0] = *cur_state;
     
+    // for (int i = 0; i < 4; i++)
+    // {
+    //     for (int j = 0; j < 4; j++)
+    //     {
+    //         message[4*i+j] = cur_state->val[j][i];
+    //     }
+    // }
+    free(cur_state);
+}
+
+void f_encrypt128(AES_128 *aes, byte state[16], Inner_State *all_state){
+    State cur_state;
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            message[4*i+j] = cur_state->val[j][i];
+            cur_state.val[j][i] = state[4*i+j];
         }
     }
-    free(cur_state);
+
+    for (int i = 8, k = 16; i < 10; i++)
+    {
+        subBytes(&cur_state);
+        
+        shiftRows(&cur_state);
+
+        mixColumns(&cur_state);
+
+        all_state->inner[k++] = cur_state;
+        addRoundKey(&cur_state, &aes->roundKeys[i]);
+
+        all_state->inner[k++] = cur_state;
+    }
+
+    subBytes(&cur_state);
+    shiftRows(&cur_state);
+    all_state->inner[20] = cur_state;
+    addRoundKey(&cur_state, &aes->roundKeys[10]);
+    all_state->inner[21] = cur_state;
+}
+
+void g_encrypt128(AES_128 *aes, byte plaintext[16], Inner_State *all_state){
+    State cur_state;
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
+            cur_state.val[j][i] = plaintext[4*i+j];
+        }
+    }
+
+    all_state->inner[0] = cur_state;
+    addRoundKey(&cur_state, &aes->roundKeys[0]);
+    
+    all_state->inner[1] = cur_state;
+
+    for (int i = 1, k = 2; i < 8; i++)
+    {
+        subBytes(&cur_state);
+        
+        shiftRows(&cur_state);
+
+        mixColumns(&cur_state);
+
+        all_state->inner[k++] = cur_state;
+        addRoundKey(&cur_state, &aes->roundKeys[i]);
+
+        all_state->inner[k++] = cur_state;
+    }
 }

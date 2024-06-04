@@ -2,6 +2,24 @@
 #include "settings.h"
 
 int main(int argc, char** argv){
+    byte initial_key[16] = { 0 };
+    Dimention_Biclique **d_dimention_biclique = D_Dimention_Biclique_create(initial_key);
+
+    Inner_State interne;
+    int pos_x = 4, pos_y = 52;
+    f_encrypt128(&d_dimention_biclique[pos_x][pos_y].keys, d_dimention_biclique[pos_x][pos_y].sub_state, &interne);
+
+    bool verif = true;
+    for(int i = 0; i < 4; i++){
+        for(int j = 0; j < 4; j++){
+            if(d_dimention_biclique[pos_x][pos_y].ciphertext[4*j+i] != interne.inner[21].val[i][j]);
+        } 
+    }
+    printf("La verification est %s\n", (verif) ? "vrai" : "fausse");
+
+    for(int i = 0; i < 256; i++)
+        free(d_dimention_biclique[i]);
+    free(d_dimention_biclique);
 
     /*AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
 
@@ -40,7 +58,7 @@ int main(int argc, char** argv){
 
 
     
-    AES_128 *key_0 = (AES_128*)malloc(sizeof(AES_128));
+    /*AES_128 *key_0 = (AES_128*)malloc(sizeof(AES_128));
     AES_128 *key_1 = (AES_128*)malloc(sizeof(AES_128));
     AES_128 *key_2 = (AES_128*)malloc(sizeof(AES_128));
 
@@ -164,7 +182,7 @@ int main(int argc, char** argv){
     free(inner_state_0);
     free(inner_state_1);
     free(inner_state_2);
-    return 0;
+    return 0;*/
 }
 
 /*

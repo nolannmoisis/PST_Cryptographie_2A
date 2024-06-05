@@ -5,68 +5,6 @@ int main(int argc, char** argv){
     byte initial_key[16] = { 0xf, 0, 2, 2, 5, 6 ,8, 7, 6, 3, 0, 0xd, 0, 5, 6, 0xe };
     Dimention_Biclique **d_dimention_biclique = D_Dimention_Biclique_create(initial_key);
 
-    Inner_State state;
-
-    int pos_i = 0, pos_y = 1;
-
-    f_encrypt128(&d_dimention_biclique[pos_i][pos_y].keys, d_dimention_biclique[pos_i][pos_y].sub_state, &state);
-
-    for(int a = 0; a < 4; a++){
-        for(int b = 0; b < 4; b++){
-            printf("[%x]",d_dimention_biclique[0][0].keys.roundKeys[8].val[a][b]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    for(int a = 0; a < 4; a++){
-        for(int b = 0; b < 4; b++){
-            printf("[%x]",d_dimention_biclique[pos_i][pos_y].keys.roundKeys[8].val[a][b]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    for(int a = 0; a < 4; a++){
-        for(int b = 0; b < 4; b++){
-            printf("[%x]",d_dimention_biclique[pos_i][pos_y].ciphertext[4*b+a]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    for(int a = 0; a < 4; a++){
-        for(int b = 0; b < 4; b++){
-            printf("[%x]",state.inner[21].val[a][b]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-
-    // AES_128 test0, test1;
-
-    // setCipherKey(&test0, initial_key);
-
-    // for(int i = 0; i < 4; i++){
-    //     for(int j = 0; j < 4; j++)
-    //         initial_key[4*j+i] = test0.roundKeys[10].val[i][j];
-    // }
-
-    // setCipherKey_inv(&test1, initial_key);
-
-
-    // for(int i = 0; i < 256; i++){
-    //     f_encrypt128(&d_dimention_biclique[i][0].keys, d_dimention_biclique[i][0].sub_state, &state);
-    //     bool verif = true;
-    //     for(int a = 0; a < 4; a++){
-    //         for(int b = 0; b < 4; b++){
-    //             if(state.inner[21].val[a][b] != d_dimention_biclique[i][0].ciphertext[4*b+a])
-    //                 verif = false;
-    //         }
-    //     }
-    //     printf("i : %d, verif est %s\n", i, (verif) ? "vrai" : "fausse");
-    // }
-
     for(int i = 0; i < 256; i++)
         free(d_dimention_biclique[i]);
     free(d_dimention_biclique);
@@ -76,37 +14,6 @@ int main(int argc, char** argv){
     byte cipherkey[16] = { 0 };
 
     setCipherKey(aes_128, cipherkey);
-    
-    //Recherche d'une clef correspondante
-    while(!((aes_128->roundKeys[8].val[0][3] == 0) && (aes_128->roundKeys[8].val[1][0] == 0))){
-        // printf("Nombre de clef essayer : %ld\n", number++);
-        for(int i = 0; i < 16; i++){
-            if(cipherkey[i] == 0xFF)
-                cipherkey[i] = 0x00;
-            else{
-                cipherkey[i]++;
-                break;
-            }
-        }
-        setCipherKey(aes_128, cipherkey);
-    }
-
-    printf("trouver la clef est :");
-
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            if((aes_128->roundKeys[0].val[i][j] & 0xF0) == 0x00)
-                printf("0");
-            else
-                printf("%x", (aes_128->roundKeys[0].val[i][j]&0xF0) >> 4);
-            if((aes_128->roundKeys[0].val[i][j] & 0xF) == 0x0)
-                printf("0");
-            else
-                printf("%x", aes_128->roundKeys[0].val[i][j]&0xF);
-        }
-    }*/
-
-
     
     /*AES_128 *key_0 = (AES_128*)malloc(sizeof(AES_128));
     AES_128 *key_1 = (AES_128*)malloc(sizeof(AES_128));
@@ -377,5 +284,3 @@ int main(int argc, char** argv){
 
 //     return 0;
 // }
-
-

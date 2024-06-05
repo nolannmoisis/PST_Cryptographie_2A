@@ -96,6 +96,10 @@ Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]){
     for(int a = 0; a < 4; a++){
         for(int b = 0; b < 4; b++) {
             init_key.roundKeys[8].val[a][b] = initial_key[4*b + a];
+            if(a == 0 && b == 3)
+                init_key.roundKeys[8].val[a][b] = 0;
+            if(a == 1 && b == 0)
+                init_key.roundKeys[8].val[a][b] = 0;
         }
     }
 
@@ -109,32 +113,34 @@ Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]){
         }
     }
 
+    State differential_i, differential_j;
+
     for(int i = 0; i < 256; i++){
+        for(int j = 0; j < 256; j++){
+            d_dimention_biclique[i][j].keys.roundKeys[8] = init_key.roundKeys[8];
+            setCipherKey_delta_i(&d_dimention_biclique[i][j].keys, i);
+            setCipherKey_delta_j(&d_dimention_biclique[i][j].keys, j);
+            setCipherKey_recomputeFrom8(&d_dimention_biclique[i][j].keys);
+        }
+        int round = 0;
+        for(int a = 0; a < 4; a++){
+            for(int b = 0; b < 4; b++){
+                differential_i.val[a][b] = d_dimention_biclique[i][0].keys.roundKeys[round].val[a][b] ^ d_dimention_biclique[0][0].keys.roundKeys[round].val[a][b];
+                differential_j.val[a][b] = d_dimention_biclique[0][i].keys.roundKeys[round].val[a][b] ^ d_dimention_biclique[0][0].keys.roundKeys[round].val[a][b];
+            }
+        }
         for(int j = 0; j < 256; j++){
             for(int a = 0; a < 4; a++){
                 for(int b = 0; b < 4; b++) {
                     int index = 4*b+a;
                     d_dimention_biclique[i][j].sub_state[index] = d_dimention_biclique[0][0].sub_state[index];
                     d_dimention_biclique[i][j].ciphertext[index] = d_dimention_biclique[0][0].ciphertext[index];
-                    switch (index)
-                    {
-                    case 1:
-                    case 9:
-                        d_dimention_biclique[i][j].sub_state[index] ^= j;
-                        break;
-                    case 8:
-                    case 12:
-                        d_dimention_biclique[i][j].ciphertext[index] ^= i;
-                        break;
-                    default:
-                        break;
-                    }
+                    if(i != 0)
+                        d_dimention_biclique[i][j].ciphertext[index] ^= differential_i.val[a][b];
+                    if(j != 0)
+                        d_dimention_biclique[i][j].sub_state[index] ^= differential_j.val[a][b];
                 }
             }
-            d_dimention_biclique[i][j].keys.roundKeys[8] = init_key.roundKeys[8];
-            setCipherKey_delta_i(&d_dimention_biclique[i][j].keys, i);
-            setCipherKey_delta_j(&d_dimention_biclique[i][j].keys, j);
-            setCipherKey_recomputeFrom8(&d_dimention_biclique[i][j].keys);
         }
     }
 
@@ -545,5 +551,27 @@ void g_encrypt128(AES_128 *aes, byte plaintext[16], Inner_State *all_state){
         addRoundKey(&cur_state, &aes->roundKeys[i]);
 
         all_state->inner[k++] = cur_state;
+    }
+}
+
+void setCipherKey_inv(AES_128 *aes, byte cipherKey[16]){
+    byte coef[10] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1B, 0x36};
+    for(int a = 0; a < 4; a++){
+        for(int b = 0; b < 4; b++){
+            aes->roundKeys[10].val[a][b] = cipherKey[4*b+a];
+        }
+    }
+    for(int r = 9; r >= 0; r--){
+        for(int i = 1; i < 4; i++){
+            for(int j = 0; j < 4; j++){
+                aes->roundKeys[r].val[j][i] = aes->roundKeys[r+1].val[j][i] ^ aes->roundKeys[r+1].val[j][i-1];
+            }
+        }   
+        byte x0[4] = {aes->roundKeys[r].val[1][3], aes->roundKeys[r].val[2][3], aes->roundKeys[r].val[3][3], aes->roundKeys[r].val[0][3]};
+        for(int i = 0; i < 4; i++)
+            x0[i] = sBox[x0[i]];
+        x0[0] ^= coef[r];
+        for(int i = 0; i < 4; i++)
+            aes->roundKeys[r].val[i][0] = x0[i] ^ aes->roundKeys[r+1].val[i][0];
     }
 }

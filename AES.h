@@ -33,6 +33,7 @@ void invShiftRows(State *state);
 void invMixColumns(State *state);
 
 void setCipherKey(AES_128 *aes, byte cipherKey[16]);
+void setCipherKey_inv(AES_128 *aes, byte cipherKey[16]);
 void encrypt128(AES_128 *aes, byte message[16], Inner_State *all_state);
 void f_encrypt128(AES_128 *aes, byte state[16], Inner_State *all_state);
 void g_encrypt128(AES_128 *aes, byte plaintext[16], Inner_State *all_state);

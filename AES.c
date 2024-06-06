@@ -113,32 +113,23 @@ Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]){
         }
     }
 
-    State differential_i, differential_j;
+    Inner_State differential_i, differential_j;
 
     for(int i = 0; i < 256; i++){
         for(int j = 0; j < 256; j++){
-            d_dimention_biclique[i][j].keys.roundKeys[8] = init_key.roundKeys[8];
+            d_dimention_biclique[i][j].keys = init_key;
             setCipherKey_delta_i(&d_dimention_biclique[i][j].keys, i);
             setCipherKey_delta_j(&d_dimention_biclique[i][j].keys, j);
-            setCipherKey_recomputeFrom8(&d_dimention_biclique[i][j].keys);
+            setCipherKeyRound(&d_dimention_biclique[i][j].keys);
         }
-        int round = 0;
-        for(int a = 0; a < 4; a++){
-            for(int b = 0; b < 4; b++){
-                differential_i.val[a][b] = d_dimention_biclique[i][0].keys.roundKeys[round].val[a][b] ^ d_dimention_biclique[0][0].keys.roundKeys[round].val[a][b];
-                differential_j.val[a][b] = d_dimention_biclique[0][i].keys.roundKeys[round].val[a][b] ^ d_dimention_biclique[0][0].keys.roundKeys[round].val[a][b];
-            }
-        }
+        f_encrypt128(&d_dimention_biclique[i][0].keys, d_dimention_biclique[0][0].sub_state, &differential_i);
         for(int j = 0; j < 256; j++){
+            decrypt128(&d_dimention_biclique[0][j].keys, d_dimention_biclique[0][0].ciphertext, &differential_j);
             for(int a = 0; a < 4; a++){
                 for(int b = 0; b < 4; b++) {
                     int index = 4*b+a;
-                    d_dimention_biclique[i][j].sub_state[index] = d_dimention_biclique[0][0].sub_state[index];
-                    d_dimention_biclique[i][j].ciphertext[index] = d_dimention_biclique[0][0].ciphertext[index];
-                    if(i != 0)
-                        d_dimention_biclique[i][j].ciphertext[index] ^= differential_i.val[a][b];
-                    if(j != 0)
-                        d_dimention_biclique[i][j].sub_state[index] ^= differential_j.val[a][b];
+                    d_dimention_biclique[i][j].ciphertext[index] = differential_i.inner[21].val[a][b];
+                    d_dimention_biclique[i][j].sub_state[index] = differential_j.inner[15].val[a][b];
                 }
             }
         }

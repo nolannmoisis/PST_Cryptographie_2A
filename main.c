@@ -1,19 +1,157 @@
 #include "AES.h"
 #include "settings.h"
 
+// #define DEMO //presentation pour la demonstration
+
 int main(int argc, char** argv){
-    byte initial_key[16] = { 0xf, 0, 2, 2, 5, 6 ,8, 7, 6, 3, 0, 0xd, 0, 5, 6, 0xe };
-    Dimention_Biclique **d_dimention_biclique = D_Dimention_Biclique_create(initial_key);
 
-    for(int i = 0; i < 256; i++)
-        free(d_dimention_biclique[i]);
-    free(d_dimention_biclique);
 
-    /*AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
 
-    byte cipherkey[16] = { 0 };
+    #ifdef DEMO
+        system("clear");
+        printf("Vous pouvez choisir plusieurs demonstration :\n");
+        printf("\t1 - Chiffrer\n");
+        printf("\t2 - Dechiffrer\n");
+        printf("\t3 - Observation des differences sur les 3 derniers tours\n");
+        printf("\t4 - Montrer une partie de la matrice de clefs\n");
 
-    setCipherKey(aes_128, cipherkey);
+        printf("Demo : ");
+
+        int demo_state;
+        scanf("%d", &demo_state);
+        while (demo_state < 1 || 4 < demo_state){
+            printf("\nErreur lors de la selection de la demo, veuillez reessayer\n");
+            printf("Demo : ");
+            scanf("%d", &demo_state);
+        }
+
+        //Case 3
+        byte init_key[16] = { 0x1f, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        byte C0[16] = { 0 }, S0[16] = { 0 };
+        AES_128 key0, key1, key2;
+        Inner_State interne0, interne1, interne2;
+        
+        switch (demo_state)
+        {
+        case 1:
+            printf("1 - Chiffrer\n");
+            break;
+        case 2:
+            printf("2 - Dechiffrer\n");
+            break;
+        case 3:
+            printf("key : ");
+            for(int i = 0; i < 16; i++){
+                    int x1 = (init_key[i] >> 4) & 0xf, x0 = init_key[i] & 0xf;
+                    printf("%x%x", (x1) ? x1: 0, (x0) ? x0: 0);
+            }
+            printf("\n\nVariation i : f\tj : f\n");
+            
+            setCipherKey(&key0, init_key);
+            key1 = key0;
+            key2 = key0;
+            setCipherKey_delta_i(&key1, 0xf);
+            setCipherKeyRound(&key1);
+            setCipherKey_delta_j(&key2, 0xf);
+            setCipherKeyRound(&key2);
+
+            decrypt128(&key0, C0, &interne0);
+            for(int a = 0; a < 4; a++)
+                for(int b = 0; b < 4; b++)
+                    S0[4*b+a] = interne0.inner[15].val[a][b];
+
+            interne1 = interne0;
+            f_encrypt128(&key1, S0, &interne1);
+            decrypt128(&key2, C0, &interne2);
+
+            for(int s = 15; s < 22; s++){
+                printf("#%d\n", s);
+                for(int a = 0; a < 4; a++){
+                    for(int b = 0; b < 4; b++){
+                        int x1 = (interne0.inner[s].val[a][b] >> 4) & 0xf, x0 = interne0.inner[s].val[a][b] & 0xf;
+                        printf("[%x%x]", (x1) ? x1: 0, (x0) ? x0: 0);
+                    }
+                    printf("\t");
+                    for(int b = 0; b < 4; b++){
+                        int x1 = (interne1.inner[s].val[a][b] >> 4) & 0xf, x0 = interne1.inner[s].val[a][b] & 0xf;
+                        printf("[%x%x]", (x1) ? x1: 0, (x0) ? x0: 0);
+                    }
+                    printf("\t");
+                    for(int b = 0; b < 4; b++){
+                        int x1 = (interne2.inner[s].val[a][b] >> 4) & 0xf, x0 = interne2.inner[s].val[a][b] & 0xf;
+                        printf("[%x%x]", (x1) ? x1: 0, (x0) ? x0: 0);
+                    }
+                    printf("\n");
+                }
+                printf("\n");
+            }
+            printf("\n");
+
+            break;
+        default:
+            printf("4 - Montrer une partie de la matrice de clefs\n");
+            break;
+        }
+
+    #else
+
+        // byte m[16] = { 0 };
+        // AES_128 key = { 0 };
+        // setCipherKey_recomputeFrom8(&key);
+        // AES_128 key_i = key;
+        // setCipherKey_delta_i(&key_i, 1);
+        // setCipherKeyRound(&key_i);
+        // Inner_State interne, interne_i;
+        // encrypt128(&key, m, &interne);
+
+        // for(int a = 0; a < 4; a++)
+        //     for(int b = 0; b < 4; b++)
+        //         m[4*b+a] = interne.inner[15].val[a][b];
+        
+        // interne_i = interne;
+        // f_encrypt128(&key_i, m, &interne_i);
+
+        // for(int a = 0; a < 4; a++){
+        //     for(int b = 0; b < 4; b++)
+        //         printf("[%x]", interne.inner[21].val[a][b]);
+        //     printf("\n");
+        // }
+        // printf("\n");
+
+        // for(int a = 0; a < 4; a++){
+        //     for(int b = 0; b < 4; b++)
+        //         printf("[%x]", interne_i.inner[21].val[a][b] ^ interne.inner[21].val[a][b]);
+        //     printf("\n");
+        // }
+        // printf("\n");
+
+
+        byte initial_key[16] = { 0 };
+        Dimention_Biclique **d_dimention_biclique = D_Dimention_Biclique_create(initial_key);
+        Inner_State interne;
+
+        for(int i = 0; i < 256; i++){
+            bool verif = true;
+            f_encrypt128(&d_dimention_biclique[56][i].keys, d_dimention_biclique[56][i].sub_state, &interne);
+            for(int a = 0; a < 4; a++){
+                for(int b = 0; b < 4; b++){
+                    if(interne.inner[21].val[a][b] != d_dimention_biclique[56][i].ciphertext[4*b+a])
+                        verif = false;
+                }
+            }
+            printf("Verif : %d\t state : %s\n", i, (verif) ? "good" : "bad");
+        }
+
+        for(int i = 0; i < 256; i++)
+            free(d_dimention_biclique[i]);
+        free(d_dimention_biclique);
+        
+
+    #endif
+
+    // AES_128 *aes_128 = (AES_128*)malloc(sizeof(AES_128));
+    // byte cipherkey[16] = { 0 };
+    // setCipherKey(aes_128, cipherkey);
     
     /*AES_128 *key_0 = (AES_128*)malloc(sizeof(AES_128));
     AES_128 *key_1 = (AES_128*)malloc(sizeof(AES_128));

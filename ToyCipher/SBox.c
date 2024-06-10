@@ -1,6 +1,9 @@
 #include "SBox.h"
 
+#pragma region Constant
 const int S_BOX_SIZE = 16;
+const byte subBytesTab[16] = {0x6, 0xB, 0x5, 0x4, 0x2, 0xE, 0x7, 0xA, 0x9, 0xD, 0xF, 0xC, 0x3, 0x1, 0x0, 0x8};
+#pragma endregion
 
 byte **SBox_DifferentialProbability(void){
     byte **DP = (byte**)calloc(S_BOX_SIZE, sizeof(byte*));
@@ -48,6 +51,23 @@ void DP_Delete(byte **DP){
     free(DP);
 }
 
+void LP_FilePrint(byte **LP, char *filePath){
+    FILE *file = fopen(filePath, "w");
+    for (int i = 0; i < S_BOX_SIZE; i++){
+        for (int j = 0; j < S_BOX_SIZE; j++){
+            if (LP[i][j] != 0){
+                fprintf(file, "[%d] ", LP[i][j]);
+            }
+            else{
+                fprintf(file, "[.] ");
+            }
+        }
+        fprintf(file, "\n");
+    }
+
+    fclose(file);
+}
+
 int scalar(int a, int b){
     int count = 0;
     int sum = a & b;
@@ -69,12 +89,10 @@ byte **SBox_LinearProbability(void){
         for (int b = 0; b < S_BOX_SIZE; b++){
             correlation = 0;
             for(int x = 0; x < S_BOX_SIZE; x++){
-                //printf("scalaire (a = %d, x = %d) : %d et l'autre b = %d : %d\n", a, x, scalar(a, x), b, scalar((int)subBytesTab[x], b));
                 if (scalar(a, x) == (scalar((int)subBytesTab[x], b))){
                     correlation++;
                 }
             }
-            //printf("\n");
             buffer = ((2*(correlation)-16));
             buffer *= buffer;
             buffer /= 16;
@@ -83,4 +101,12 @@ byte **SBox_LinearProbability(void){
     }
 
     return LP;
+}
+
+void LP_Delete(byte **LP){
+    for (int i = 0; i < S_BOX_SIZE; i++){
+        free(LP[i]);
+    }
+    
+    free(LP);
 }

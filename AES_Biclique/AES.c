@@ -1,7 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "AES.h"
 
 static byte sBox[256] = {
@@ -565,4 +561,46 @@ void setCipherKey_inv(AES_128 *aes, byte cipherKey[16]){
         for(int i = 0; i < 4; i++)
             aes->roundKeys[r].val[i][0] = x0[i] ^ aes->roundKeys[r+1].val[i][0];
     }
+}
+
+State Attaque_Biclique(AES_128 *secret_key){
+    Inner_State interne = { 0 };
+    //Test des 65536 premières clefs
+    for(int possible_value0 = 0; possible_value0 < 256; possible_value0++){
+        for(int possible_value1 = 0; possible_value1 < 1; possible_value1++){
+            //Creation de la clef[0, 0]
+            byte init_key[16] = { 0 };
+            init_key[0] = possible_value0;
+            init_key[2] = possible_value1;
+
+            //Creation de la matrice de clef ainsi que les Sj et Ci
+            Dimention_Biclique **d_dimention_biclique = D_Dimention_Biclique_create(init_key);
+
+            for(int i = 0; i < 256; i++){
+                //Oracle
+                decrypt128(secret_key, d_dimention_biclique[i][0].ciphertext, &interne);
+                //Recherche une clef[i, j] fonctionnant
+                for(int j = 0; j < 256; j++){
+                    bool verif = true;
+                    for(int a = 0; a < 4 && verif; a++)
+                        for(int b = 0; b < 4 && verif; b++)
+                            if(d_dimention_biclique[i][j].sub_state[4*b+a] != interne.inner[15].val[a][b])
+                                verif = false;
+                    if(verif){
+                        interne.inner[0] = d_dimention_biclique[i][j].keys.roundKeys[8];
+                        for(int k = i; k < 256; k++)
+                            free(d_dimention_biclique[k]);
+                        free(d_dimention_biclique);
+                        return interne.inner[0];
+                    }
+                }
+                free(d_dimention_biclique[i]);
+            }
+            free(d_dimention_biclique);
+        }
+    }
+
+    State end = { 0 };
+
+    return end;
 }

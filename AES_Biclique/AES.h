@@ -1,6 +1,8 @@
 #ifndef _AES_H_
 #define _AES_H_
 
+#include "settings.h"
+
 typedef unsigned char byte;
 
 typedef byte (*mat_func[4][4])(byte);
@@ -49,5 +51,10 @@ Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]);
 
 int is_equal(State state1, State state2);
 Inner_State** function_f (Dimention_Biclique mat_key, byte** messages);
+
+/// @brief Mise en place de l'attaque biclique en donnant la clef secrete
+/// @param secret_key 
+/// @return 
+State Attaque_Biclique(AES_128 *secret_key);
 
 #endif

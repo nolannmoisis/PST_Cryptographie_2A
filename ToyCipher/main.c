@@ -1,11 +1,10 @@
 #include "ToyCipher.h"
 #include "SBox.h"
-#include "Mini AES.h"
 
 #pragma region Define
-#define SBoxLineaire
+// #define SBoxLineaire
 // #define SBoxDifferential
-// #define ToyCipherHRPD
+ #define ToyCipherHRPD
 #pragma endregion
 
 int main(int argc, char **argv)

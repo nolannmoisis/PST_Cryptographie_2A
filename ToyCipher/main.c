@@ -4,8 +4,8 @@
 
 #pragma region Define
 #define SBoxLineaire
-#define SBoxDifferential
-#define ToyCipherHRPD
+// #define SBoxDifferential
+// #define ToyCipherHRPD
 #pragma endregion
 
 int main(int argc, char **argv)

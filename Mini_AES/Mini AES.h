@@ -84,7 +84,7 @@ void decrypt(Message *message, Message **roundKey, int round);
 /// @brief Permet de créer le message
 /// @param path Le chemin vers l'instance du message à chiffré
 /// @return Pointeur vers le message
-Message *messageCreate(char *path);
+Message *messageCreate(char *path, Message *key);
 
 /// @brief Permet de détruire le message
 /// @param message Le message à détruire

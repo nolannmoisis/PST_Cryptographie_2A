@@ -224,7 +224,7 @@ void decrypt(Message *message, Message **roundKeys, int round){
     addRoundKey(message, roundKeys[0]);
 }
 
-Message *messageCreate(char *path){
+Message *messageCreate(char *path, Message* key){
 
     //Création du pointeur vers le fichier
     FILE *pfile = fopen(path, "r");
@@ -240,7 +240,7 @@ Message *messageCreate(char *path){
     Message *new = (Message*)calloc(1, sizeof(Message));
 
     //Lecture du nombre d'entré
-    if(fscanf(pfile, "%d\n", &new->size) != 1)
+    if(fscanf(pfile, "%d ", &new->size) != 1)
     {
         printf("ERROR : RECOVERY NUMBER OF FILE ENTRIES\n");
         fclose(pfile);
@@ -253,7 +253,7 @@ Message *messageCreate(char *path){
     for(int i = 0; i < new->size; i++)
     {
         //Vérification des valeurs récupérés et cast d'un byte en int (lisibilité)
-        if(fscanf(pfile, "%c\n", &(new->tab[i])) != 1)
+        if(fscanf(pfile, "%c ", &(new->tab[i])) != 1)
         {
             printf("EROOR : RECOVERY NUMBER TO BE CHIFFER\n");
             fclose(pfile);
@@ -262,6 +262,37 @@ Message *messageCreate(char *path){
         if('0' <= new->tab[i] && new->tab[i] <= '9')new->tab[i] -= '0';
         else if('A' <= new->tab[i] && new->tab[i] <= 'F')new->tab[i] -= '7';
         else if('a' <= new->tab[i] && new->tab[i] <= 'f')new->tab[i] -= 'W';
+        else
+        {
+            printf("EROOR : INCORRECT DATA\n");
+            fclose(pfile);
+            return NULL;
+        }
+    }
+    fscanf(pfile, "\n");
+
+    if(fscanf(pfile, "%d ", &key->size) != 1)
+    {
+        printf("ERROR : RECOVERY NUMBER OF FILE ENTRIES\n");
+        fclose(pfile);
+        return NULL;
+    }
+
+    //Allocation du tableau contenant les données
+    key->tab = (byte*)calloc(key->size, sizeof(byte));
+    
+    for(int i = 0; i < key->size; i++)
+    {
+        //Vérification des valeurs récupérés et cast d'un byte en int (lisibilité)
+        if(fscanf(pfile, "%c ", &(key->tab[i])) != 1)
+        {
+            printf("EROOR : RECOVERY NUMBER TO BE CHIFFER\n");
+            fclose(pfile);
+            return NULL;
+        }
+        if('0' <= key->tab[i] && key->tab[i] <= '9')key->tab[i] -= '0';
+        else if('A' <= key->tab[i] && key->tab[i] <= 'F')key->tab[i] -= '7';
+        else if('a' <= key->tab[i] && key->tab[i] <= 'f')key->tab[i] -= 'W';
         else
         {
             printf("EROOR : INCORRECT DATA\n");

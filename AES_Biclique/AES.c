@@ -123,13 +123,13 @@ Dimention_Biclique **D_Dimention_Biclique_create(byte initial_key[16]){
             setCipherKeyRound(&d_dimention_biclique[i][j].keys);
         }
         f_encrypt128(&d_dimention_biclique[i][0].keys, d_dimention_biclique[0][0].sub_state, &differential_i);
+        decrypt128(&d_dimention_biclique[0][i].keys, d_dimention_biclique[0][0].ciphertext, &differential_j);
         for(int j = 0; j < 256; j++){
-            decrypt128(&d_dimention_biclique[0][j].keys, d_dimention_biclique[0][0].ciphertext, &differential_j);
             for(int a = 0; a < 4; a++){
                 for(int b = 0; b < 4; b++) {
                     int index = 4*b+a;
                     d_dimention_biclique[i][j].ciphertext[index] = differential_i.inner[21].val[a][b];
-                    d_dimention_biclique[i][j].sub_state[index] = differential_j.inner[15].val[a][b];
+                    d_dimention_biclique[j][i].sub_state[index] = differential_j.inner[15].val[a][b];
                 }
             }
         }

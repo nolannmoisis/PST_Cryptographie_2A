@@ -49,12 +49,12 @@ int main(int argc, char** argv){
             //Valeur de la deuxième case
             secret_key.roundKeys[8].val[2][0] = 0x00;
 
-            printf("Deuxieme variable (modulo 256) : ");
+            printf("\nDeuxieme variable (modulo 256) : ");
             if(scanf("%d", &tmp));
             //Valeur de la troisème case
             secret_key.roundKeys[8].val[0][3] = tmp%256;
 
-            printf("Troiseme variable (modulo 256) : ");
+            printf("\nTroiseme variable (modulo 256) : ");
             if(scanf("%d", &tmp));
             //Valeur de la quatrième case
             secret_key.roundKeys[8].val[1][0] = tmp%256;
@@ -66,7 +66,7 @@ int main(int argc, char** argv){
             encrypt128(&secret_key, word, &interne);
             ciphertext = interne.inner[21];
 
-            printf("Calcule de l'attaque biclique\n");
+            printf("\nCalcule de l'attaque biclique\n");
             //Attaque Biclique
             start = clock();
             result = Attaque_Biclique(&secret_key);
@@ -74,7 +74,7 @@ int main(int argc, char** argv){
             setCipherKey_recomputeFrom8(&attaque);
             end_biclique = clock();
 
-            printf("Calcule de l'attaque Brute Force\n");
+            printf("\nCalcule de l'attaque Brute Force\n");
             //Brute Force
             for(int i0 = 0; i0 < 256 && !find; i0++){
                 brute_force.roundKeys[8].val[0][0] = i0;

@@ -47,3 +47,6 @@ Compilation
   gcc -O3 *.c -lm
   ./a.out
 ```
+## Lien Presentation comme le salon
+
+https://www.canva.com/design/DAGDPYWCdeQ/ciZl1-cmZQhfDqDobIgDgQ/edit?utm_content=DAGDPYWCdeQ&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton
